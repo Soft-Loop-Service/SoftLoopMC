@@ -1,6 +1,5 @@
 #include "./dfa.hpp"
 
-
 namespace DFAParse
 {
 
@@ -33,8 +32,8 @@ namespace DFAParse
                 LRItemFormulaExpansionStruct b_LR_formula_expansion = b_LR_formula.LR_formula_expansion_vector[j];
                 BNFParse::vDeploymentTokenStruct a_token_vector = a_LR_formula_expansion.token_vector;
                 BNFParse::vDeploymentTokenStruct b_token_vector = b_LR_formula_expansion.token_vector;
-                BNFParse::vDeploymentTokenStruct a_lookAhead = a_LR_formula_expansion.lookAhead;
-                BNFParse::vDeploymentTokenStruct b_lookAhead = b_LR_formula_expansion.lookAhead;
+                BNFParse::vDeploymentTokenStruct a_look_ahead = a_LR_formula_expansion.look_ahead;
+                BNFParse::vDeploymentTokenStruct b_look_ahead = b_LR_formula_expansion.look_ahead;
 
                 if (a_LR_formula_expansion.dot != b_LR_formula_expansion.dot)
                 {
@@ -44,7 +43,7 @@ namespace DFAParse
                 {
                     return false;
                 }
-                if (a_lookAhead.size() != b_lookAhead.size())
+                if (a_look_ahead.size() != b_look_ahead.size())
                 {
                     return false;
                 }
@@ -67,18 +66,18 @@ namespace DFAParse
                 }
 
                 int l_count = 0;
-                for (int k = 0; k < a_lookAhead.size(); k++)
+                for (int k = 0; k < a_look_ahead.size(); k++)
                 {
-                    for (int n = 0; n < b_lookAhead.size(); n++)
+                    for (int n = 0; n < b_look_ahead.size(); n++)
                     {
-                        if (a_lookAhead[k].token_str == b_lookAhead[n].token_str)
+                        if (a_look_ahead[k].token_str == b_look_ahead[n].token_str)
                         {
                             l_count++;
                             break;
                         }
                     }
                 }
-                if (l_count != a_lookAhead.size())
+                if (l_count != a_look_ahead.size())
                 {
                     return false;
                 }
@@ -95,7 +94,7 @@ namespace DFAParse
         struct LRItemFormulaExpansionStruct formula_expansion = {};
         formula_expansion.token_vector.push_back(token);
         formula_expansion.formula_expansion_label = -1;
-        formula_expansion.lookAhead = {token_dollar};
+        formula_expansion.look_ahead = {token_dollar};
         formula_expansion.dot = 0;
         struct LRItemFormulaStruct formula;
         formula.LR_formula_expansion_vector.push_back(formula_expansion);
@@ -248,7 +247,7 @@ namespace DFAParse
                 for (int j = 0; j < LR_formula_expansion_vector.size(); j++)
                 {
                     BNFParse::vDeploymentTokenStruct token_vector = LR_formula_expansion_vector[j].token_vector;
-                    BNFParse::vDeploymentTokenStruct lookAhead = LR_formula_expansion_vector[j].lookAhead;
+                    BNFParse::vDeploymentTokenStruct lookAhead = LR_formula_expansion_vector[j].look_ahead;
 
                     printf("%d %d %d dot : %d ITEM群 : %s ::= ", d, i, j, LR_formula_expansion_vector[j].dot, keys[i].c_str());
                     for (int k = 0; k < token_vector.size(); k++)

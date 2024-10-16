@@ -1,6 +1,5 @@
 #include "./dfa.hpp"
 
-
 /*
 dot と tokenの関係は以下の通り
   token0 token1 token2 token3 ・・・
@@ -30,7 +29,7 @@ namespace DFAParse
             {
                 int dot = lr_item.LR_formula_map[key].LR_formula_expansion_vector[j].dot;
 
-                int la_size = lr_item.LR_formula_map[key].LR_formula_expansion_vector[j].lookAhead.size();
+                int la_size = lr_item.LR_formula_map[key].LR_formula_expansion_vector[j].look_ahead.size();
                 for (int k = 0; k < la_size; k++)
                 {
                     BNFParse::vDeploymentTokenStruct first_set = getLatterFirstSet(lr_item.LR_formula_map[key].LR_formula_expansion_vector[j], dot, k);
@@ -47,7 +46,7 @@ namespace DFAParse
         for (int j = 0; j < lr_item.LR_formula_map[search_key].LR_formula_expansion_vector.size(); j++)
         {
             int dot = lr_item.LR_formula_map[search_key].LR_formula_expansion_vector[j].dot;
-            int la_size = lr_item.LR_formula_map[search_key].LR_formula_expansion_vector[j].lookAhead.size();
+            int la_size = lr_item.LR_formula_map[search_key].LR_formula_expansion_vector[j].look_ahead.size();
             for (int k = 0; k < la_size; k++)
             {
                 BNFParse::vDeploymentTokenStruct first_set = getLatterFirstSet(lr_item.LR_formula_map[search_key].LR_formula_expansion_vector[j], dot, k);
@@ -57,7 +56,7 @@ namespace DFAParse
     }
 
     // dotの後ろにある末端記号・非末端記号と、先読み記号を合体させる
-    BNFParse::vDeploymentTokenStruct ClosureExpansion::getLatterToken(LRItemFormulaExpansionStruct LR_formula_expansion, int dot, int lookAhead_index)
+    BNFParse::vDeploymentTokenStruct ClosureExpansion::getLatterToken(LRItemFormulaExpansionStruct LR_formula_expansion, int dot, int look_ahead_index)
     {
         BNFParse::vDeploymentTokenStruct latter_token = {};
         for (int i = dot + 1; i < LR_formula_expansion.token_vector.size(); i++)
@@ -65,18 +64,18 @@ namespace DFAParse
             latter_token.push_back(LR_formula_expansion.token_vector[i]);
         }
 
-        latter_token.push_back(LR_formula_expansion.lookAhead[lookAhead_index]);
+        latter_token.push_back(LR_formula_expansion.look_ahead[look_ahead_index]);
 
         return latter_token;
     }
 
     // 指定したdot以降の右辺tokenと、先読み記号をもとにfirst集合を作成する
-    BNFParse::vDeploymentTokenStruct ClosureExpansion::getLatterFirstSet(LRItemFormulaExpansionStruct LR_formula_expansion, int dot, int lookAhead_index)
+    BNFParse::vDeploymentTokenStruct ClosureExpansion::getLatterFirstSet(LRItemFormulaExpansionStruct LR_formula_expansion, int dot, int look_ahead_index)
     {
         ItemSet::NullSetClass cnull_set_class = ItemSet::NullSetClass(deployment_syntax);
         ItemSet::FirstSetClass cfirst_set_class = ItemSet::FirstSetClass(deployment_syntax, cnull_set_class.findNullsSet());
 
-        BNFParse::vDeploymentTokenStruct latter_token = getLatterToken(LR_formula_expansion, dot, lookAhead_index);
+        BNFParse::vDeploymentTokenStruct latter_token = getLatterToken(LR_formula_expansion, dot, look_ahead_index);
 
         BNFParse::vDeploymentTokenStruct first_set = cfirst_set_class.findFirstSetVector(latter_token);
 
@@ -108,7 +107,6 @@ namespace DFAParse
             return;
         }
 
-        // データの移譲
         BNFParse::vDeploymentFormulaExpansionStruct dfexp = deployment_syntax.formula_map[token.token_str].formula_expansion_vector;
 
         for (int k = 0; k < dfexp.size(); k++)
@@ -119,7 +117,7 @@ namespace DFAParse
                 struct LRItemFormulaExpansionStruct new_lrf_exp;
                 new_lrf_exp.token_vector = dfexp[k].token_vector;
                 new_lrf_exp.formula_expansion_label = dfexp[k].formula_expansion_label;
-                new_lrf_exp.lookAhead = first_set;
+                new_lrf_exp.look_ahead = first_set;
                 new_lrf_exp.dot = 0;
 
                 lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector.push_back(new_lrf_exp);
@@ -127,7 +125,7 @@ namespace DFAParse
 
                 int n_index = lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector.size() - 1;
                 int dot = lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector[n_index].dot;
-                int la_size = lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector[n_index].lookAhead.size();
+                int la_size = lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector[n_index].look_ahead.size();
                 for (int t = 0; t < la_size; t++)
                 {
                     BNFParse::vDeploymentTokenStruct new_first_set = getLatterFirstSet(lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector[n_index], dot, t);
@@ -137,7 +135,7 @@ namespace DFAParse
             else
             { // 先読み記号だけ追加する
                 int formula_expansion_index = already_explored_formula_expansion[dfexp[k].formula_expansion_label];
-                BNFParse::vDeploymentTokenStruct *current_look_ahead_p = &(lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector[formula_expansion_index].lookAhead);
+                BNFParse::vDeploymentTokenStruct *current_look_ahead_p = &(lr_item.LR_formula_map[token.token_str].LR_formula_expansion_vector[formula_expansion_index].look_ahead);
 
                 for (int n = 0; n < first_set.size(); n++)
                 {

@@ -18,8 +18,6 @@ int main(int argc, char *argv[])
     loadText(source_code, argv[1], source_code_size);
     string source_code_file_name = argv[1];
 
-    char **token_string = new char *[token_string_arr_size * sizeof(char *)];
-    int *token_progression = new int[token_progression_arr_size * sizeof(int)];
     LexicalAnalysis::vLexicalToken token_string_vector = LexicalAnalysis::lexSyntax(source_code);
 
     LRTable::LRTableMultilayer LR_table_multilayer;

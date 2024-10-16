@@ -5,16 +5,13 @@
 #include "./../definition.hpp"
 #include "./../item_set/item_set.hpp"
 
-
 #define ROOT_DFA_SYMBOL "<_S>"
 #define START_DFA_SYMBOL "<S>"
-
 
 namespace DFAParse
 {
     struct DFANode;
     class ClosureExpansion;
-
 
     struct LRItemStruct;
     struct LRItemFormulaStruct;
@@ -32,7 +29,6 @@ namespace DFAParse
     void outputDFA(vDFANode dfa_node_graph);
     vDFANode generateDFA(BNFParse::DeploymentStruct deployment_syntax);
 
-
     /*
     DFANodeはLRItemStructの機能に加えて他nodeの事も考えることができる。LRItemStructはコンポジションである
     */
@@ -43,7 +39,6 @@ namespace DFAParse
         // vstring already_explored = {};                  // すでに展開した左辺を登録する。無限に再帰展開されないようにするのが目的
         mp_i_i already_explored_formula_expansion = {}; // 一つのアイテム集合内に、同じ展開式が重複して登録されないようにする
         // int dot = -1;
-
 
     public:
         ClosureExpansion(BNFParse::DeploymentStruct deployment_syntax);
@@ -74,7 +69,7 @@ lookAhead : 先読み記号
 */
 struct DFAParse::LRItemFormulaExpansionStruct : BNFParse::DeploymentFormulaExpansionStruct
 {
-    BNFParse::vDeploymentTokenStruct lookAhead;
+    BNFParse::vDeploymentTokenStruct look_ahead;
     int dot;
 };
 
