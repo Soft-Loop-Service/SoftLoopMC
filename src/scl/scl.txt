@@ -1,0 +1,39 @@
+<S> ::= <EL>
+<EL> ::= <E> *
+<E> ::= <left> ";" | <right> ";" | <left> "=" <right> ";" | <if> | <while> | <function> | <component> ";" | <contaxt> ";" | <return> ";"
+
+<left> ::= <value_definition> | <array_definition> | TEXT
+<right> ::= <comparison_equal> | <function_message_passing> | <array_length>
+
+<comparison_equal> ::= <comparison_equal> "==" <comparison> | <comparison_equal> "!=" <comparison> | <comparison>
+<comparison> ::= <comparison> "<" <expr> | <comparison> "<=" <expr> | <comparison> ">" <expr> | <comparison> ">=" <expr> | <expr>
+
+<expr> ::= <expr> "+" <term> | <expr> "-" <term> | <term>
+<term> ::= <term> "*" <factor> | <term> "/" <factor>  | <term> "%" <factor> |  <factor>
+<factor> ::= "(" <right> ")" | <text> | <number> | TEXT
+
+<number> ::= NUM
+<text> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | """ """ | "'" "'"
+
+<value_definition> ::= TEXT TEXT
+<array_definition> ::= TEXT <array_length> TEXT
+
+<component> ::= "Component" TEXT TEXT <block> | "Component" TEXT TEXT <component_argument> <block>
+<component_argument> ::= "(" <argument> ")"
+
+
+<array_length> ::= "[" <right> "]" <array_length> | "[" "]" <array_length> | "[" <argument> "]" <array_length> |
+<argument> ::= TEXT "," <argument>  | TEXT |
+
+<if> ::= "if" <right> <block> <else>
+<else> ::= "else" <right> <E> |
+<while> ::= "while" <right> <block>
+
+<function> ::= TEXT "(" <argument> ")" <block>
+<function_message_passing> ::= TEXT "(" <value_enumeration> ")"
+<value_enumeration> ::= <right> "," <value_enumeration>  | <right> |
+
+<return> ::= "return" | "return" <right>
+
+<block> ::= "{" <EL> "}"
+

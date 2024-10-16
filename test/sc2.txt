@@ -1,0 +1,8 @@
+
+Component Mouse PresentationMouse{
+    Contact : [PresentationPreview,PresentationPreview2,PresentationPreview3];
+
+    if(1+2){
+
+    }
+};
