@@ -113,7 +113,7 @@ namespace LRTable
     inline void LRTableFoundation<T>::inputTabke() {}
 
     template <typename T>
-    inline void LRTableFoundation<T>::makeTable(){};
+    inline void LRTableFoundation<T>::makeTable() {};
 
     template <typename T>
     inline void LRTableFoundation<T>::debug()
@@ -241,16 +241,16 @@ namespace LRTable
                 for (int j = 0; j < LR_formula.LR_formula_expansion_vector.size(); j++)
                 {
                     DFAParse::LRItemFormulaExpansionStruct LR_formula_expansion = LR_formula.LR_formula_expansion_vector[j];
-                    BNFParse::vDeploymentTokenStruct lookAhead = LR_formula_expansion.lookAhead;
+                    BNFParse::vDeploymentTokenStruct look_ahead = LR_formula_expansion.look_ahead;
 
                     if (LR_formula_expansion.dot != LR_formula_expansion.token_vector.size())
                     {
                         continue;
                     }
 
-                    for (int k = 0; k < lookAhead.size(); k++)
+                    for (int k = 0; k < look_ahead.size(); k++)
                     {
-                        string la_key = lookAhead[k].token_str;
+                        string la_key = look_ahead[k].token_str;
 
                         this->LR_table_column_map[la_key][c].setCell(fm_key, LR_formula_expansion.token_vector);
                     }

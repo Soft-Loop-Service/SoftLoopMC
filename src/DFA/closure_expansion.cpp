@@ -72,13 +72,16 @@ namespace DFAParse
     // 指定したdot以降の右辺tokenと、先読み記号をもとにfirst集合を作成する
     BNFParse::vDeploymentTokenStruct ClosureExpansion::getLatterFirstSet(LRItemFormulaExpansionStruct LR_formula_expansion, int dot, int look_ahead_index)
     {
+
         ItemSet::NullSetClass cnull_set_class = ItemSet::NullSetClass(deployment_syntax);
         ItemSet::FirstSetClass cfirst_set_class = ItemSet::FirstSetClass(deployment_syntax, cnull_set_class.findNullsSet());
-
         BNFParse::vDeploymentTokenStruct latter_token = getLatterToken(LR_formula_expansion, dot, look_ahead_index);
+        // auto p3 = std::chrono::high_resolution_clock::now();
+        BNFParse::vDeploymentTokenStruct first_set = cfirst_set_class.findFirstSetVector(latter_token); // ここ重たい(1ms)
+        // auto p4 = std::chrono::high_resolution_clock::now();
 
-        BNFParse::vDeploymentTokenStruct first_set = cfirst_set_class.findFirstSetVector(latter_token);
-
+        // std::chrono::duration<double, std::milli> elapsed4 = p4 - p3;
+        // std::cout << "経過時間: " << elapsed4.count() << " " << std::endl;
         return first_set;
     }
 

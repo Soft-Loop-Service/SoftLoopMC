@@ -91,6 +91,70 @@ inline std::vector<Y> getMapKeyString(std::map<Y, T> mp)
 
     return keys;
 }
+inline bool getTwoDimensionalArray(int **data, int one, int two)
+{
+    data = (int **)calloc(one, sizeof(int *));
+    if (data == NULL)
+    {
+        return false;
+    }
+
+    for (int i = 0; i < one; i++)
+    {
+        data[i] = (int *)calloc(two, sizeof(int));
+        if (data[i] == NULL)
+        {
+            return false;
+        }
+    }
+
+    for (int h = 0; h < one; h++)
+    {
+        for (int w = 0; w < two; w++)
+        {
+            data[h][w] = 0;
+        }
+    }
+
+    return true;
+}
+
+/*
+ resizeCharNull
+ 第一引数    : 対象となる配列
+ 第二引数    : 変更したい長さ
+ */
+inline int resizeArray(int *data, int len)
+{
+    int size = len * sizeof(int);
+
+    int *newdata = (int *)calloc(len, sizeof(int));
+    memcpy(newdata, data, size);
+    data = newdata;
+    printf("resizeArray %d\n", data[0]);
+
+    printf("resize int array ok : resize %d -> %d sizeof %ld\n", len, size, sizeof(int));
+    return size;
+}
+
+inline int resizeArray(char **str, int len)
+{
+
+    int size = len * sizeof(char *);
+    char **newstr = (char **)realloc(str, size);
+
+    if (newstr == NULL)
+    {
+        printf("resize char array error : 再配置できません 再配置要求 %d -> %d\n", len, size);
+        return len;
+    }
+
+    str = newstr;
+
+    printf("resize char array ok : resize %d -> %d sizeof %ld\n", len, size, sizeof(char **));
+
+    return size;
+}
 
 /* プログラム・ファイルを読み込むための関数 text / filename / size(読み込むサイズ)*/
 inline void loadText(char *text, const char *file_name, int size)

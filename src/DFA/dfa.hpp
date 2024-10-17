@@ -4,6 +4,7 @@
 #include "./../BNF/bnf.hpp"
 #include "./../definition.hpp"
 #include "./../item_set/item_set.hpp"
+#include <chrono>
 
 #define ROOT_DFA_SYMBOL "<_S>"
 #define START_DFA_SYMBOL "<S>"

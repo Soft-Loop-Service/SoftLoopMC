@@ -181,6 +181,9 @@ namespace DFAParse
 
     int recursionDFA(BNFParse::DeploymentStruct &deployment_syntax, vDFANode &dfa_node_graph, int current_node_index)
     {
+        printf("\rDFA NODE : {%d}", dfa_node_graph.size());
+        fflush(stdout);
+
         DFANode current_node = dfa_node_graph[current_node_index];
         vstring next_labels = getNextLabelDFA(current_node);
 
@@ -189,10 +192,10 @@ namespace DFAParse
         for (int i = 0; i < next_labels.size(); i++)
         {
             string next_label = next_labels[i];
-
             DFANode new_node = generateNewNodeDFA(deployment_syntax, current_node, next_label);
+            closure_expansion.nodeClosureExpansion(new_node.lr_item); // この関数が重たそう
 
-            closure_expansion.nodeClosureExpansion(new_node.lr_item);
+            // ここに時間を測定したい処理を記述
 
             int flag = -1;
             for (int j = 0; j < dfa_node_graph.size(); j++)
@@ -209,6 +212,7 @@ namespace DFAParse
                 dfa_node_graph[current_node_index].children_nodes[next_label] = flag;
                 continue;
             }
+
             dfa_node_graph.push_back(new_node);
             int push_index = dfa_node_graph.size() - 1;
             dfa_node_graph[current_node_index].children_nodes[next_label] = push_index;
@@ -247,7 +251,7 @@ namespace DFAParse
                 for (int j = 0; j < LR_formula_expansion_vector.size(); j++)
                 {
                     BNFParse::vDeploymentTokenStruct token_vector = LR_formula_expansion_vector[j].token_vector;
-                    BNFParse::vDeploymentTokenStruct lookAhead = LR_formula_expansion_vector[j].look_ahead;
+                    BNFParse::vDeploymentTokenStruct look_ahead = LR_formula_expansion_vector[j].look_ahead;
 
                     printf("%d %d %d dot : %d ITEM群 : %s ::= ", d, i, j, LR_formula_expansion_vector[j].dot, keys[i].c_str());
                     for (int k = 0; k < token_vector.size(); k++)
@@ -255,9 +259,9 @@ namespace DFAParse
                         printf("%s , ", token_vector[k].token_str.c_str());
                     }
                     printf("先読み記号 : ");
-                    for (int k = 0; k < lookAhead.size(); k++)
+                    for (int k = 0; k < look_ahead.size(); k++)
                     {
-                        printf("%s ,  ", lookAhead[k].token_str.c_str());
+                        printf("%s ,  ", look_ahead[k].token_str.c_str());
                     }
                     printf("\n");
                 }
@@ -276,8 +280,9 @@ namespace DFAParse
         vDFANode dfa_node_graph = {};
         dfa_node_graph.push_back(root_dfa_node);
 
+        printf("DFA NODE");
         recursionDFA(deployment_syntax, dfa_node_graph, 0);
-
+        printf("\n");
         outputDFA(dfa_node_graph);
 
         printf("処理終了\n");

@@ -1,6 +1,6 @@
 # MicroSoftLoop
 
-国立研究開発法人情報通信研究機構 Sechack365 で開発した SoftLoop のマイコン向け派生
+国立研究開発法人情報通信研究機構 Sechack365 で開発した SoftLoop のマイコン向け派生。
 
 Soft Loop は構文木巡回方式のいわゆるシンプルな言語であったが、MicorSoftLoop では OOP の導入、バイトコードへの変換を行う言語処理系にしたい。構文解析手法は相変わらず LR(1)
 
