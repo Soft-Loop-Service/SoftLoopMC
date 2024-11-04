@@ -1,6 +1,6 @@
 <S> ::= <EL>
 <EL> ::= <E> *
-<E> ::= <left> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> | <while> | <function> | <return> ";"
+<E> ::= <left> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> | <while> | <function> | <component> | <class> | <interface> | <return> ";"
 
 <left> ::= <value_definition> | <array_definition> | <value_name> | <array_name>
 <right> ::= <comparison_equal> | <function_message_passing> | <new_array>

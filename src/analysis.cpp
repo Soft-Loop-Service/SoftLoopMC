@@ -6,7 +6,6 @@
 #include "./input_table.hpp"
 
 #include "./scl/scl.hpp"
-#include "./intermediate/intermediate.hpp"
 #include "./trans_kit/trans_kit.hpp"
 
 int main(int argc, char *argv[])
@@ -40,8 +39,8 @@ int main(int argc, char *argv[])
     LanguageSpecifications::parse(scl_expr);
     TransSystem::TransKit trans_kit;
 
-    LanguageIntermediateSystem::Intermediate intermediate_system(scl_expr, trans_kit);
-    LanguageIntermediateSystem::intermediate(scl_expr, intermediate_system);
+    // LanguageIntermediateSystem::Intermediate intermediate_system(scl_expr, trans_kit);
+    // LanguageIntermediateSystem::intermediate(scl_expr, intermediate_system);
 
     printf("analysis - end\n");
 }

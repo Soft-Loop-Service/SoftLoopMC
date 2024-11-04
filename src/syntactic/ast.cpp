@@ -584,8 +584,8 @@ namespace Syntactic
                 recursionCutBinaryTree(construction_tree, c);
             }
         }
-        cutNonterminalNode(construction_tree, current_node_index);
-        childrenLeftAlignmentBinaryTree(construction_tree);
+        // cutNonterminalNode(construction_tree, current_node_index);
+        // childrenLeftAlignmentBinaryTree(construction_tree);
 
         printf("%3d :(離脱) AST刈り取り作業\n", current_node_index);
     }
