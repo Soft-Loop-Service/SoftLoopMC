@@ -6,6 +6,9 @@
 
 #include "./BNF/bnf.hpp"
 
+// 第1引数 : 入力BNF名
+// 第2引数 : 出力tableファイル名
+
 int main(int argc, char *argv[])
 {
     LRTable::LRTableMultilayer LR_table_multilayer;
