@@ -14,6 +14,17 @@
 namespace Syntactic
 {
 
+    // 親要素を設定する
+    void recursionSyntacticAnalysisTreeParentDFS(vSyntacticTree &syntactic_analysis_tree, int current_index)
+    {
+        for (int i = 0; i < syntactic_analysis_tree[current_index].children.size(); i++)
+        {
+            int c_index = syntactic_analysis_tree[current_index].children[i];
+            syntactic_analysis_tree[c_index].setParent(current_index);
+            recursionSyntacticAnalysisTreeParentDFS(syntactic_analysis_tree, c_index);
+        }
+    }
+
     /// @brief
     /// @param syntactic_analysis_tree
     /// @param syntactic_analysis_formula
@@ -146,6 +157,7 @@ namespace Syntactic
 
         recursionSyntacticAnalysisTreeDFS(syntactic_analysis_tree, syntactic_analysis_formula, token_string_vector, last, -1, 0);
         syntacticAnalysisTreeSubstitution(syntactic_analysis_formula, syntactic_analysis_tree, token_string_vector);
+        recursionSyntacticAnalysisTreeParentDFS(syntactic_analysis_tree, 0);
 
         debugSyntacticAnalysisTree(syntactic_analysis_tree);
     }

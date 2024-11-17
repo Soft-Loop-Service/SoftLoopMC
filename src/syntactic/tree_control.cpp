@@ -13,51 +13,75 @@
 
 namespace Syntactic
 {
+    // 不要な文字であるか判定する
     bool isTokenSkepSyntacticAnalysis(string token_str)
     {
         const char *token = token_str.c_str();
         return (strchr("(){}[];,\'\"", token[0]) != 0);
     }
 
-    bool deleteChild(vSyntacticTree &tree, int current_node_index)
+    /// @brief 自身の存在を消すメソッド
+    /// @param tree グラフ(木)
+    /// @param parent_node_index 親要素
+    /// @param parent_node_child_index 親要素の子要素index 変更するノード
+    /// @param move_node_index 移動するノード
+    /// @return
+    void deleteChild(vSyntacticTree &tree, int current_node_index)
     {
         tree[current_node_index].parent_node_index = -1;
         tree[current_node_index].token_label = is_id_Unnecessary;
     }
 
-    bool moveChild(vSyntacticTree &tree, int parent_node_index, int parent_node_child_index, int move_node_index)
+    /// @brief 自分自身を削除し、自身の指定した子供を現在の位置に移動、親と接続する。子要素は共有しない
+    /// @param tree
+    /// @param current_node_index
+    /// @param child_flow_index
+    void climbChild(vSyntacticTree &tree, int current_node_index, int child_flow_index)
     {
-        printf("\n%3d :  ***********  - moveChild p:%d pci:%d mn:%d pc-size:%d pc-換:%d\n", -2, parent_node_index, parent_node_child_index, move_node_index, tree[parent_node_index].children.size(), tree[parent_node_index].children[parent_node_child_index]);
-        tree[parent_node_index].children[parent_node_child_index] = move_node_index;
-        tree[move_node_index].setParent(parent_node_index);
-    }
-
-    bool climbChild(vSyntacticTree &tree, int parent_node_index, int current_node_index, int leftright)
-    {
-        int climb_node_index = tree[current_node_index].children[leftright];
-        printf("%3d : - climbChild p:%d c:%d lr:%d pc-size:%d", -2, parent_node_index, current_node_index, leftright, tree[parent_node_index].children.size());
-        printf(" pc-inside:(");
-        for (int i = 0; i < tree[parent_node_index].children.size(); i++)
+        // 親要素の子要素リストを変更する
+        int parent_index = tree[current_node_index].parent_node_index;
+        int ps = tree[parent_index].children.size();
+        for (int i = 0; i < ps; i++)
         {
-            printf("%d ", tree[parent_node_index].children[i]);
-            if (tree[parent_node_index].children[i] == current_node_index)
+            if (tree[parent_index].children[i] == current_node_index)
             {
-                moveChild(tree, parent_node_index, i, climb_node_index);
-
-                deleteChild(tree, current_node_index);
-                printf(" - - - true pc:%d\n", i);
-                return true;
+                tree[parent_index].children[i] = child_flow_index;
+                break;
             }
         }
-        printf(" )");
-        printf(" - - - false\n");
-        debugSyntacticAnalysisTree(tree);
-        return false;
+
+        deleteChild(tree, current_node_index);
     }
 
+    /// @brief 自分自身を削除し、自身の指定した子供を現在の位置に移動、親と接続する。子要素の共有を行う
+    /// @param tree
+    /// @param current_node_index
+    /// @param child_flow_index
+    void moveChild(vSyntacticTree &tree, int current_node_index, int child_flow_index)
+    {
+        vint current_node_children = tree[current_node_index].children;
+        climbChild(tree, current_node_index, child_flow_index);
+
+        for (int i = 0; i < current_node_children.size(); i++)
+        {
+            if (current_node_children[i] == child_flow_index)
+            {
+                current_node_children[i] = -1;
+            }
+        }
+
+        // tree[child_flow_index].children.insert(tree[child_flow_index].children.end(), current_node_children.begin(), current_node_children.end()); // 連結
+        joinArray(tree[child_flow_index].children, current_node_children);
+        deleteNegativeValueChildren(tree, child_flow_index);
+    }
+
+    /// @brief 自分自身を削除し、親要素にも削除させる
+    /// @param tree
+    /// @param parent_node_index 親要素
+    /// @param delete_child_node 現在要素（消したい要素）
+    /// @return
     bool cutChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node)
     {
-        printf("%3d : - cutChild p:%d d:%d", -2, parent_node_index, delete_child_node);
         for (int i = 0; i < tree[parent_node_index].children.size(); i++)
         {
             if (tree[parent_node_index].children[i] == delete_child_node)
@@ -65,87 +89,55 @@ namespace Syntactic
                 tree[parent_node_index].children[i] = -1;
 
                 deleteChild(tree, delete_child_node);
-                printf(" - - - true pc:%d\n", i);
+                deleteNegativeValueChildren(tree, parent_node_index);
+
                 return true;
             }
         }
-        printf(" - - - false\n");
         debugSyntacticAnalysisTree(tree);
+
         return false;
     }
 
-    bool cutSelfChildParent(vSyntacticTree &tree, int parent_node_index, int delete_child_node_index, int move_child_node_index)
+    /// @brief 自分自身を削除し、親要素と孫要素を連結する。つまり現在の要素の子要素群を親要素の子要素群とする
+    /// @param tree
+    /// @param parent_node_index
+    /// @param delete_child_node
+    /// @return
+    bool shortParentChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node)
     {
-        printf("%3d : - cutSelfChildCommon d:%d m:%d ", -2, delete_child_node_index, move_child_node_index);
+        // tree[parent_node_index].children = tree[delete_child_node].children;
 
-        SyntacticTreeNode delete_node = tree[delete_child_node_index];
-        SyntacticTreeNode move_node = tree[move_child_node_index];
-
+        vint new_children = {};
         for (int i = 0; i < tree[parent_node_index].children.size(); i++)
         {
-            printf("%d ", tree[parent_node_index].children[i]);
-            if (tree[parent_node_index].children[i] == delete_child_node_index)
+            if (tree[parent_node_index].children[i] == delete_child_node)
             {
-
-                // 上位層への切り替え要求
-                moveChild(tree, parent_node_index, i, move_child_node_index);
-
-                tree[delete_child_node_index].token_label = is_id_Unnecessary;
-
-                printf(" - parent true pc:%d", i);
-                return true;
+                joinArray(new_children, tree[delete_child_node].children);
+            }
+            else
+            {
+                new_children.push_back(tree[parent_node_index].children[i]);
             }
         }
-
-        printf(" - - - parent false\n");
-        debugSyntacticAnalysisTree(tree);
-        return false;
+        tree[parent_node_index].children = new_children;
+        deleteChild(tree, delete_child_node);
     }
 
-    bool cutSelfChildFlow(vSyntacticTree &tree, int flow_parent, int flow)
+    /// @brief 削除するといわれ-1を付与されたchildren配列内の要素を削除する。
+    /// @param tree
+    /// @param current_node_index 検査対象（その子要素群を検査する）
+    /// @return
+    bool deleteNegativeValueChildren(vSyntacticTree &tree, int current_node_index)
     {
-        if (flow_parent < 0 || flow < 0)
+        int c_index = tree[current_node_index].children.size();
+        for (int i = c_index - 1; i >= 0; i--)
         {
-            printf(" - - - notflow true\n");
-            return true;
+            if (tree[current_node_index].children[i] < 0)
+            {
+                tree[current_node_index].children.erase(tree[current_node_index].children.begin() + i);
+            }
         }
-
-        int new_flow_parent = -1;
-
-        while (true)
-        {
-
-            if ((tree[flow_parent].children[0] < 0 && tree[flow_parent].children[1] < 0))
-            {
-                new_flow_parent = flow_parent;
-                break;
-            }
-            if ((tree[flow_parent].children[0] >= 0 && tree[flow_parent].children[1] >= 0))
-            {
-                flow_parent = tree[flow_parent].children[1];
-                continue;
-            }
-
-            if (tree[flow_parent].children[0] >= 0)
-            {
-                flow_parent = tree[flow_parent].children[0];
-                continue;
-            }
-
-            if (tree[flow_parent].children[1] >= 0)
-            {
-                flow_parent = tree[flow_parent].children[1];
-                continue;
-            }
-
-            printf(" - - - flow_parent false\n");
-            debugSyntacticAnalysisTree(tree);
-            return false;
-        }
-        printf(" - flow_parent true fp:%d mv:%d", new_flow_parent, flow);
-
-        moveChild(tree, new_flow_parent, 0, flow);
-        printf("\n");
-        return true;
     }
+
 }

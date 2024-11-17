@@ -16,24 +16,45 @@
 namespace Syntactic
 {
 
+    void cutParentheses(vSyntacticTree &tree, int parent_node_index, int current_node_index)
+    {
+        if (parent_node_index >= 0)
+        {
+            if (tree[current_node_index].token_label == is_id_NonterminalSymbol && tree[current_node_index].children.size() == 0)
+            {
+                cutChild(tree, parent_node_index, current_node_index);
+            }
+            else if (tree[current_node_index].token_label == is_id_TerminalSymbol && isTokenSkepSyntacticAnalysis(tree[current_node_index].token))
+            {
+                cutChild(tree, parent_node_index, current_node_index);
+            }
+        }
+        for (int i = 0; i < tree[current_node_index].children.size(); i++)
+        {
+            int c_index = tree[current_node_index].children[i];
+            cutParentheses(tree, current_node_index, c_index);
+        }
+        if (parent_node_index >= 0)
+        {
+
+            if (tree[current_node_index].token_label == is_id_NonterminalSymbol && tree[current_node_index].children.size() == 1)
+            {
+                shortParentChild(tree, parent_node_index, current_node_index);
+            }
+        }
+    }
+
     void syntacticParseTree(vSyntacticTree cst, vSyntacticTree &ast)
     {
         vSyntacticTree construction_tree = cst;
 
-        for (int i = 0; i < construction_tree.size(); i++)
-        {
-            construction_tree[i].children = {-2, -2};
-        }
-        printf("AST解析 - A\n");
-        // recursionSyntacticBinaryTree(cst, construction_tree, 0);
         debugSyntacticAnalysisTree(construction_tree, false);
+        printf("AST解析  - A\n");
+
+        cutParentheses(construction_tree, -1, 0);
+        debugSyntacticAnalysisTree(construction_tree, false);
+
         printf("AST解析  - B\n");
-        // recursionCutBinaryTree(construction_tree, 0);
-        // debugSyntacticAnalysisTree(construction_tree, false);
-        printf("AST解析  - C\n");
-        // debugSyntacticAnalysisTree(construction_tree);
-        debugSyntacticAnalysisTree(construction_tree, false);
-        printf("AST解析  - D\n");
 
         ast = construction_tree;
         return;

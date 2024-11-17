@@ -225,4 +225,9 @@ inline bool isExpr(string ts)
     return (strchr("+-*/%=<>:\'\"", token[0]) != 0);
 }
 
+template <typename T>
+inline void joinArray(vector<T> &a, vector<T> b)
+{
+    a.insert(a.end(), b.begin(), b.end()); // 連結
+}
 #endif
