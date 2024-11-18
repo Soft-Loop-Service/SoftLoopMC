@@ -72,7 +72,6 @@ namespace Syntactic
 
         // tree[child_flow_index].children.insert(tree[child_flow_index].children.end(), current_node_children.begin(), current_node_children.end()); // 連結
         joinArray(tree[child_flow_index].children, current_node_children);
-        deleteNegativeValueChildren(tree, child_flow_index);
     }
 
     /// @brief 自分自身を削除し、親要素にも削除させる
@@ -89,7 +88,6 @@ namespace Syntactic
                 tree[parent_node_index].children[i] = -1;
 
                 deleteChild(tree, delete_child_node);
-                deleteNegativeValueChildren(tree, parent_node_index);
 
                 return true;
             }
@@ -122,6 +120,28 @@ namespace Syntactic
         }
         tree[parent_node_index].children = new_children;
         deleteChild(tree, delete_child_node);
+    }
+
+    bool shortParentChildFlow(vSyntacticTree &tree, int parent_node_index, int delete_current_node, int flow_child_node)
+    {
+        for (int i = 0; i < tree[parent_node_index].children.size(); i++)
+        {
+            if (tree[parent_node_index].children[i] == delete_current_node)
+            {
+                tree[parent_node_index].children[i] = flow_child_node;
+            }
+        }
+
+        vint delete_children = tree[delete_current_node].children;
+        for (int i = 0; i < delete_children.size(); i++)
+        {
+            if (delete_children[i] == flow_child_node)
+            {
+                delete_children[i] = -1;
+            }
+        }
+        tree[flow_child_node].children = delete_children;
+        deleteChild(tree, delete_current_node);
     }
 
     /// @brief 削除するといわれ-1を付与されたchildren配列内の要素を削除する。
