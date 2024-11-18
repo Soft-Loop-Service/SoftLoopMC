@@ -8,6 +8,11 @@
 #include "./scl/scl.hpp"
 #include "./trans_kit/trans_kit.hpp"
 
+#include "./bytecode/translator/translator.hpp"
+
+// source_code_file_name
+// table_file_name
+// bytecode
 int main(int argc, char *argv[])
 {
     char *source_code = new char[source_code_size * sizeof(char)];
@@ -38,6 +43,9 @@ int main(int argc, char *argv[])
     LanguageSpecifications::Scl::SclExpr scl_expr(ast);
     LanguageSpecifications::parse(scl_expr);
     TransSystem::TransKit trans_kit;
+    string bytecode_name = argv[3];
+
+    Bytecode::Translator::translator(ast, bytecode_name);
 
     // LanguageIntermediateSystem::Intermediate intermediate_system(scl_expr, trans_kit);
     // LanguageIntermediateSystem::intermediate(scl_expr, intermediate_system);
