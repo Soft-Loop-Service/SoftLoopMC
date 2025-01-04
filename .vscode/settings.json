@@ -1,5 +1,6 @@
 {
   "files.associations": {
+    "*.css": "tailwindcss",
     "ostream": "cpp",
     "array": "cpp",
     "atomic": "cpp",
@@ -48,7 +49,8 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "cinttypes": "cpp",
-    "typeinfo": "cpp"
+    "typeinfo": "cpp",
+    "iomanip": "cpp"
   },
   "[markdown]": {
     "editor.wordWrap": "bounded",
