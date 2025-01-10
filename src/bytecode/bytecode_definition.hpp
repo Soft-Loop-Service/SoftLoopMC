@@ -9,14 +9,18 @@ namespace Bytecode
     typedef unsigned char opcr;
     namespace Opecode
     {
+        const opcr d_int = 1;
+        const opcr d_str = 2;
+        const opcr d_float = 3;
+
         const opcr push = 00;
-        const opcr push_int = 001;
-        const opcr push_str = 002;
-        const opcr push_float = 003;
+        const opcr push_int = push + d_int;
+        const opcr push_str = push + d_str;
+        const opcr push_float = push + d_float;
         const opcr pop = 010;
-        const opcr pop_int = 011;
-        const opcr pop_str = 012;
-        const opcr pop_float = 013;
+        const opcr pop_int = pop + d_int;
+        const opcr pop_str = pop + d_str;
+        const opcr pop_float = pop + d_float;
         const opcr s_goto = 020;
         const opcr s_save = 030;
         const opcr s_save_int = 031;

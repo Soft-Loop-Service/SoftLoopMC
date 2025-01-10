@@ -1,0 +1,30 @@
+<S> ::= <EL>
+<EL> ::= <E> *
+<E> ::= <left> | <right> | <left> "=" <right> | <HTML>
+
+<left> ::= <value_definition> | <value_name> | <value_name> <array>
+<right> ::= <factor> | <function_message_passing> | <array> | <json>
+
+<factor> ::= "(" <right> ")" | NUM | <text>
+
+<value_definition> ::= <type_name> <value_name>
+
+<type_name> ::= "int" | "string" | "void" | "float"
+
+<text> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | """ """ | "'" "'"
+<value_name> ::= TEXT
+
+<block> ::= "{" <EL> "}"
+
+<HTML> ::= <HTML_tag_start> <HTML> <HTML_tag_end> | <HTML_tag_single> | <HTML_tag_start> TEXT <HTML_tag_end> | <HTML_tag_start> <HTML_tag_end> | <HTML_tag_start> <block> <HTML_tag_end>
+<HTML_tag_start> ::= "<" TEXT <HTML_attribute> ">" | "<" TEXT ">"
+<HTML_tag_end> ::= "</" TEXT ">"
+<HTML_tag_single> ::= "<" TEXT <HTML_attribute> "/>" | "<" TEXT "/>"
+<HTML_attribute> ::= <value_name> "=" <json> | <value_name> "=" <json> <HTML_attribute>
+
+<json> ::= "{" <json_line> "}"
+<json_line> ::= <json_line> "," <json_element> | <json_element>
+<json_element> ::= <key> ":" <right>
+
+<array> ::= <array> "[" <array_line> "]" | "[" <array_line> "]"
+<array_line> ::= <array_line> "," <right> | <right>

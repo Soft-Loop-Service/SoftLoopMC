@@ -1,0 +1,127 @@
+bnf_file_name bnf/json.txt
+read_size : bnf/json.txt 131
+bnf_token 37 19 10 9
+char size 8 8 1
+resizeArray 6
+resize int array ok : resize 6 -> 24 sizeof 4
+DFA NODEDFA NODE : {1} root                          
+DFA NODE : {2} <json>                        
+DFA NODE : {3} <S>                           
+DFA NODE : {4} {                             
+DFA NODE : {5} TEXT                          
+DFA NODE : {6} :                             
+DFA NODE : {7} <right>                       
+DFA NODE : {8} ,                             
+DFA NODE : {9} TEXT                          
+DFA NODE : {10} NUM                           
+DFA NODE : {11} <dict>                        
+DFA NODE : {12} <e>                           
+DFA NODE : {13} <e>                           
+DFA NODE : {14} }                             
+
+outputDFA * * * * 
+受理 0   root ( <S> 2 ) ( <json> 1 ) ( { 3 ) 
+受理 1 <json> 
+受理 2    <S> 
+受理 3      { ( <dict> 10 ) ( <e> 12 ) ( TEXT 4 ) 
+受理 4   TEXT ( : 5 ) 
+受理 5      : ( <right> 6 ) ( NUM 9 ) ( TEXT 8 ) 
+受理 6 <right> ( , 7 ) 
+受理 7      , 
+受理 8   TEXT 
+受理 9    NUM 
+受理 10 <dict> ( <dict> 10 ) ( <e> 11 ) ( TEXT 4 ) 
+受理 11    <e> 
+受理 12    <e> ( } 13 ) 
+受理 13      } 
+outputDFA ITEM * * * * 
+0 0 0 dot : 0 ITEM群 : <S> ::= <json> , 先読み記号 : $ ,  
+0 1 0 dot : 0 ITEM群 : <_S> ::= <S> , 先読み記号 : $ ,  
+0 2 0 dot : 0 ITEM群 : <json> ::= { , <e> , } , 先読み記号 : $ ,  
+1 0 0 dot : 1 ITEM群 : <S> ::= <json> , 先読み記号 : $ ,  
+2 0 0 dot : 1 ITEM群 : <_S> ::= <S> , 先読み記号 : $ ,  
+3 0 0 dot : 0 ITEM群 : <dict> ::= TEXT , : , <right> , , , 先読み記号 : TEXT ,  } ,  
+3 0 1 dot : 0 ITEM群 : <dict> ::= TEXT , : , <right> , 先読み記号 : TEXT ,  } ,  
+3 1 0 dot : 0 ITEM群 : <e> ::= 先読み記号 : } ,  
+3 1 1 dot : 0 ITEM群 : <e> ::= <dict> , <e> , 先読み記号 : } ,  
+3 2 0 dot : 1 ITEM群 : <json> ::= { , <e> , } , 先読み記号 : $ ,  
+4 0 0 dot : 1 ITEM群 : <dict> ::= TEXT , : , <right> , , , 先読み記号 : TEXT ,  } ,  
+4 0 1 dot : 1 ITEM群 : <dict> ::= TEXT , : , <right> , 先読み記号 : TEXT ,  } ,  
+5 0 0 dot : 2 ITEM群 : <dict> ::= TEXT , : , <right> , , , 先読み記号 : TEXT ,  } ,  
+5 0 1 dot : 2 ITEM群 : <dict> ::= TEXT , : , <right> , 先読み記号 : TEXT ,  } ,  
+5 1 0 dot : 0 ITEM群 : <right> ::= TEXT , 先読み記号 : , ,  TEXT ,  } ,  
+5 1 1 dot : 0 ITEM群 : <right> ::= NUM , 先読み記号 : , ,  TEXT ,  } ,  
+6 0 0 dot : 3 ITEM群 : <dict> ::= TEXT , : , <right> , , , 先読み記号 : TEXT ,  } ,  
+6 0 1 dot : 3 ITEM群 : <dict> ::= TEXT , : , <right> , 先読み記号 : TEXT ,  } ,  
+7 0 0 dot : 4 ITEM群 : <dict> ::= TEXT , : , <right> , , , 先読み記号 : TEXT ,  } ,  
+8 0 0 dot : 1 ITEM群 : <right> ::= TEXT , 先読み記号 : , ,  TEXT ,  } ,  
+9 0 0 dot : 1 ITEM群 : <right> ::= NUM , 先読み記号 : , ,  TEXT ,  } ,  
+10 0 0 dot : 0 ITEM群 : <dict> ::= TEXT , : , <right> , , , 先読み記号 : TEXT ,  } ,  
+10 0 1 dot : 0 ITEM群 : <dict> ::= TEXT , : , <right> , 先読み記号 : TEXT ,  } ,  
+10 1 0 dot : 1 ITEM群 : <e> ::= <dict> , <e> , 先読み記号 : } ,  
+10 1 1 dot : 0 ITEM群 : <e> ::= 先読み記号 : } ,  
+10 1 2 dot : 0 ITEM群 : <e> ::= <dict> , <e> , 先読み記号 : } ,  
+11 0 0 dot : 2 ITEM群 : <e> ::= <dict> , <e> , 先読み記号 : } ,  
+12 0 0 dot : 2 ITEM群 : <json> ::= { , <e> , } , 先読み記号 : $ ,  
+13 0 0 dot : 3 ITEM群 : <json> ::= { , <e> , } , 先読み記号 : $ ,  
+処理終了
+  :        <S>    <dict>       <e>    <json>   <right>
+ 0 :          2                             1          
+ 1 :                                                   
+ 2 :                                                   
+ 3 :                   10        12                    
+ 4 :                                                   
+ 5 :                                                  6
+ 6 :                                                   
+ 7 :                                                   
+ 8 :                                                   
+ 9 :                                                   
+10 :                   10        11                    
+11 :                                                   
+12 :                                                   
+13 :                                                   
+  :          $         ,         :       NUM      TEXT         {         }
+ 0 :                                                            3          
+ 1 :                                                                       
+ 2 :                                                                       
+ 3 :                                                  4                    
+ 4 :                              5                                        
+ 5 :                                        9         8                    
+ 6 :                    7                                                  
+ 7 :                                                                       
+ 8 :                                                                       
+ 9 :                                                                       
+10 :                                                  4                    
+11 :                                                                       
+12 :                                                                     13
+13 :                                                                       
+  :          $         ,         :       NUM      TEXT         {         }
+ 0 :                                                                       
+ 1 :        <S>                                                            
+ 2 :       <_S>                                                            
+ 3 :                                                                    <e>
+ 4 :                                                                       
+ 5 :                                                                       
+ 6 :                                             <dict>              <dict>
+ 7 :                                             <dict>              <dict>
+ 8 :              <right>                       <right>             <right>
+ 9 :              <right>                       <right>             <right>
+10 :                                                                    <e>
+11 :                                                                    <e>
+12 :                                                                       
+13 :     <json>                                                            
+  :          $         ,         :       NUM      TEXT         {         }
+ 0 :                                                                       
+ 1 :                                                                       
+ 2 :        acc                                                            
+ 3 :                                                                       
+ 4 :                                                                       
+ 5 :                                                                       
+ 6 :                                                                       
+ 7 :                                                                       
+ 8 :                                                                       
+ 9 :                                                                       
+10 :                                                                       
+11 :                                                                       
+12 :                                                                       
+13 :                                                                       

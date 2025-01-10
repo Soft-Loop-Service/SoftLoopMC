@@ -81,8 +81,19 @@ namespace LexicalAnalysis
                 source_code_column++;
 
                 while (strchr("=+-*/!%&~|<>?:.#_", source_code[i_s + token_search_len]) != 0 && source_code[i_s + token_search_len] != 0)
+                {
+                    if (token_search_len > 0)
+                    {
+                        // ><の場合は分割
+                        if (strncmp("><", &source_code[i_s + token_search_len - 1], 2) == 0)
+                        {
+                            break;
+                        }
+                    }
                     token_search_len++;
+                }
             }
+
             else if (strchr("\'\"\\", source_code[i_s]) != 0)
             { // 特殊1文字記号
                 source_code_column++;
@@ -109,6 +120,24 @@ namespace LexicalAnalysis
 
         struct LexicalToken tsd = {DOLLAR, DOLLAR};
         lexical_token.push_back(tsd);
+
+        for (int i = lexical_token.size() - 1; i > 0; i--)
+        {
+            LexicalToken tb = lexical_token[i - 1];
+            LexicalToken tc = lexical_token[i];
+
+            if (tb.token == "<" && tc.token == "/")
+            {
+                lexical_token[i - 1].token = "</";
+                lexical_token.erase(lexical_token.begin() + i);
+            }
+            else if (tb.token == "/" && tc.token == ">")
+            {
+                lexical_token[i - 1].token = "/>";
+                lexical_token.erase(lexical_token.begin() + i);
+            }
+        }
+
         return lexical_token;
 
         // output_token_string(token_string, token_string_arr_size);

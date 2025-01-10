@@ -181,10 +181,12 @@ namespace DFAParse
 
     int recursionDFA(BNFParse::DeploymentStruct &deployment_syntax, vDFANode &dfa_node_graph, int current_node_index)
     {
-        printf("\rDFA NODE : {%d}", dfa_node_graph.size());
-        fflush(stdout);
-
         DFANode current_node = dfa_node_graph[current_node_index];
+
+        // printf("\rDFA NODE : {%d} %-30s", dfa_node_graph.size(), current_node.node_label.c_str());
+        // fflush(stdout);
+        printf("DFA NODE : {%d} %-30s\n", dfa_node_graph.size(), current_node.node_label.c_str());
+
         vstring next_labels = getNextLabelDFA(current_node);
 
         ClosureExpansion closure_expansion = ClosureExpansion(deployment_syntax);

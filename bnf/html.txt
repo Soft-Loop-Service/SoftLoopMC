@@ -1,0 +1,15 @@
+<S> ::= <HTML> *
+<EL> ::= <E> *
+<E> ::= <HTML> | <json>
+<block> ::= "{" <EL> "}"
+<right> ::= <array> | <json>
+
+<HTML> ::= <HTML_tag_start> <HTML> <HTML_tag_end> | <HTML_tag_single> | <HTML_tag_start> TEXT <HTML_tag_end> | <block>
+<HTML_tag_start> ::= "<" TEXT <HTML_attribute> ">"
+<HTML_tag_end> ::= "</" TEXT ">" 
+<HTML_tag_single> ::= "<" TEXT <HTML_attribute> "/>"
+<HTML_attribute> ::= <value_name> "=" <json> | <HTML_attribute> <value_name> "=" <json> |
+
+<json> ::= "{" <json_line> "}"
+<json_line> ::= <json_line> "," <json_element> | <json_element>
+<json_element> ::= <key> ":" <right>

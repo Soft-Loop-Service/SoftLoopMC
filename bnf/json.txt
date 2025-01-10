@@ -1,0 +1,5 @@
+<S> ::= <json>
+<json> ::= "{" <e> "}"
+<e> ::= <dict> *
+<dict> ::= TEXT ":" <right> "," |  TEXT ":" <right> 
+<right> ::= TEXT | NUM
