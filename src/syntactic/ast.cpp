@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 
 namespace Syntactic
 {
@@ -35,9 +36,12 @@ namespace Syntactic
         }
         deleteNegativeValueChildren(tree, current_node_index);
 
+        std::unordered_set<string> ast_keep_list = {"<function_message_passing>"};
+
         if (parent_node_index >= 0)
         {
-            if (tree[current_node_index].token_label == is_id_NonterminalSymbol && tree[current_node_index].children.size() == 1)
+            if (tree[current_node_index].token_label == is_id_NonterminalSymbol &&
+                ast_keep_list.find(tree[current_node_index].token) == ast_keep_list.end() && tree[current_node_index].children.size() == 1)
             {
                 shortParentChild(tree, parent_node_index, current_node_index);
             }

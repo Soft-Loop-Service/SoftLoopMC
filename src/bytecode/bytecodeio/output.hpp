@@ -53,6 +53,7 @@ namespace Bytecode
             ofstream *outputfile;
             int function_latest_id;
             vector<LocalStack> local_stack;
+            int current_local_stack_index;
 
         public:
             BytecodeOutput(string file_name);
@@ -68,6 +69,8 @@ namespace Bytecode
             void putOpecode(opcr, vint);
             void putOpecode(opcr, vstring);
 
+            int getProcessingStackTop();
+
             void switchFunction();
             void returnFunction();
 
@@ -77,6 +80,9 @@ namespace Bytecode
             // 処理済みのLocalStackのフラグを帰る
             void processedStackTop();
             void processedStack(int);
+
+            bool isFindLocalVariable(string);
+            LocalVariable findLocalVariable(string);
 
             bool isFindLocalVariable(string, int);
             LocalVariable findLocalVariable(string, int);

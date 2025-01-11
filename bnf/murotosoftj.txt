@@ -10,7 +10,7 @@
 
 <expr> ::= <expr> "+" <term> | <expr> "-" <term> | <term>
 <term> ::= <term> "*" <factor> | <term> "/" <factor>  | <term> "%" <factor> |  <factor>
-<factor> ::= "(" <right> ")" | NUM | <text>
+<factor> ::= "(" <right> ")" | NUM | <text> | <value_name>
 
 <value_definition> ::= TYPE <value_name> 
 

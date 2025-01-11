@@ -64,7 +64,7 @@ namespace LexicalAnalysis
             {
                 source_code_column++;
                 token_type = "NUM";
-                while (isNumber(source_code[i_s + token_search_len]))
+                while (isNumber(source_code[i_s + token_search_len]) || (source_code[i_s + token_search_len] == '.' && token_search_len > 0))
                 {
                     token_search_len++;
                 }

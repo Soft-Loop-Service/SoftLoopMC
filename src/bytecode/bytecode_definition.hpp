@@ -48,7 +48,7 @@ namespace Bytecode
         const opcr pop_str = pop + d_str;
         const opcr pop_float = pop + d_float;
 
-        const opcr s_goto = 20;
+        const opcr s_invokevirtual = 20; // 関数呼び出し
 
         // ローカル変数関連
 
