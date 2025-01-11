@@ -13,10 +13,11 @@ namespace Bytecode
         const opcr d_int = 1;
         const opcr d_str = 2;
         const opcr d_float = 3;
-        const opcr d_pointer = 4;
-        const opcr d_reference = 5;
+        const opcr d_pointer = 4;   // ポインタ インスタンス化したものを含む
+        const opcr d_reference = 5; // 参照
         const opcr d_html_dom = 6;
-        const opcr d_function = 7;
+        const opcr d_function = 7; // 関数
+        const opcr d_class = 8;    // クラスやコンポーネントなど、インスタンス化できるもの。
 
         inline const std::map<std::string, opcr> type_map = {
             {"int", d_int},
@@ -25,7 +26,8 @@ namespace Bytecode
             {"pointer", d_pointer},
             {"reference", d_reference},
             {"html_dom", d_html_dom},
-            {"function", d_function}};
+            {"function", d_function},
+            {"class", d_class}};
 
         inline opcr resolvOpecrType(std::string type)
         {
@@ -48,7 +50,9 @@ namespace Bytecode
         const opcr pop_str = pop + d_str;
         const opcr pop_float = pop + d_float;
 
-        const opcr s_invokevirtual = 20; // 関数呼び出し
+        const opcr s_invokevirtual = 20;             // 関数呼び出し
+        const opcr s_invokevirtual_constructor = 21; // コンストラクタ呼び出し
+        const opcr s_instance = 22;                  // インスタンス化
 
         // ローカル変数関連
 

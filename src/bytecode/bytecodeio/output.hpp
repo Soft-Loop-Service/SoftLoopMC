@@ -19,10 +19,12 @@ namespace Bytecode
         {
             string name;
             int index;
-            int type; // type_mapに依存
+            int type;  // type_mapに依存
+            vint args; // オーバーロード用
 
             LocalVariable() : name("void"), index(-1), type(0) {}
             LocalVariable(string name, int index, int type) : name(name), index(index), type(type) {}
+            LocalVariable(string name, int index, int type, vint args) : name(name), index(index), type(type), args(args) {}
         };
 
         class LocalStack
@@ -37,13 +39,16 @@ namespace Bytecode
             LocalStack();
             ~LocalStack();
             int newLocalVariable(string, int);
+            int newLocalVariable(string, int, vint);
+
             void setIsProcessed(int);
             bool getIsProcessed();
 
             bool isFindLocalVariable(string);
             bool isFindLocalVariable(string, int);
             bool isFindLocalVariable(string, string);
-
+            bool isFindLocalVariable(string, int, vint);
+            bool isFindLocalVariable(string, string, vint);
             LocalVariable getLocalVariable(string);
         };
 

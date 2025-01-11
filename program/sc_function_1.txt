@@ -1,8 +1,14 @@
 
 function a = (int b , int c , int d) => {
+    int k = 0;
     return 1536 + c - 35.12;
 };
 
 a();
 a(1);
-a(2,3,4);
+a(2,3,4,a(5));
+
+e();
+p  + 1;
+
+int k = a();

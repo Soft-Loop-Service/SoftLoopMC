@@ -15,11 +15,18 @@ namespace Bytecode
             return (token.find(".") != string::npos);
         }
 
+        void definitionValue(BytecodeOutput *bo, string name, string type)
+        {
+            int index = bo->newLocalVariable(name, Opecode::resolvOpecrType(type));
+            bo->putOpecode(Opecode::s_store + Opecode::resolvOpecrType(type), index);
+        }
+
         void definitionValue(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = tree[current_node_index];
-            int index = bo->newLocalVariable(tree[current_node.children[1]].token, Opecode::resolvOpecrType(tree[current_node.children[0]].token));
-            bo->putOpecode(Opecode::s_store + Opecode::resolvOpecrType(tree.begin()->token), index);
+            string type = tree[current_node.children[0]].token;
+            string name = tree[current_node.children[1]].token;
+            definitionValue(bo, name, type);
         }
 
         // argument制御
@@ -112,6 +119,38 @@ namespace Bytecode
                 {
                     definitionValue(tree, bo, parent_node_index, current_node_index);
                     return;
+                }
+                else if (current_node.token == "<DEFINITION>")
+                {
+                    if (current_node.children.size() < 3 || 4 < current_node.children.size())
+                    {
+                        return;
+                    }
+
+                    string definition_type = tree[current_node.children[0]].token;
+                    string definition_name = tree[current_node.children[1]].token;
+
+                    bo->switchFunction();
+
+                    if (definition_type == "class")
+                    {
+                        definitionValue(bo, definition_name, "class");
+                    }
+                    if (definition_type == "component")
+                    {
+                        definitionValue(bo, definition_name, "class");
+                    }
+
+                    if (current_node.children.size() == 3)
+                    {
+                        recursionTree(tree, bo, current_node_index, current_node.children[2]);
+                    }
+                    if (current_node.children.size() == 4)
+                    {
+                        recursionTree(tree, bo, current_node_index, current_node.children[3]);
+                    }
+
+                    bo->returnFunction();
                 }
             }
 

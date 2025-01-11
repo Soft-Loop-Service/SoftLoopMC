@@ -222,6 +222,14 @@ namespace Bytecode
             return is_prossesing;
         }
 
+        int LocalStack::newLocalVariable(string name, int type, vint args)
+        {
+            LocalVariable lv = LocalVariable(name, local_variable_map.size(), type, args);
+            local_variable_map[name] = lv;
+            // ここでは2行前から+1されているので、注意
+            return local_variable_map.size();
+        }
+
         int LocalStack::newLocalVariable(string name, int type)
         {
             LocalVariable lv = LocalVariable(name, local_variable_map.size(), type);
@@ -233,6 +241,24 @@ namespace Bytecode
         bool LocalStack::isFindLocalVariable(string name)
         {
             return local_variable_map.find(name) != local_variable_map.end();
+        }
+
+        bool LocalStack::isFindLocalVariable(string name, string type, vint args)
+        {
+            int type_int = Opecode::resolvOpecrType(type);
+            return isFindLocalVariable(name, type_int, args);
+        }
+
+        bool LocalStack::isFindLocalVariable(string name, int type, vint args)
+        {
+            auto iterator = local_variable_map.find(name);
+            if (local_variable_map.find(name) == local_variable_map.end())
+            {
+                return false;
+            }
+
+            LocalVariable lv = iterator->second;
+            return lv.type == type && lv.args == args;
         }
 
         bool LocalStack::isFindLocalVariable(string name, string type)
