@@ -3,41 +3,85 @@
 #ifndef __BYTECODE_D
 #define __BYTECODE_D
 #include "./../syntactic/syntactic_analysis.hpp"
+#include <map>
 
 namespace Bytecode
 {
-    typedef unsigned char opcr;
+    typedef unsigned int opcr;
     namespace Opecode
     {
         const opcr d_int = 1;
         const opcr d_str = 2;
         const opcr d_float = 3;
+        const opcr d_pointer = 4;
+        const opcr d_reference = 5;
+        const opcr d_html_dom = 6;
+        const opcr d_function = 7;
 
-        const opcr push = 00;
+        inline const std::map<std::string, opcr> type_map = {
+            {"int", d_int},
+            {"str", d_str},
+            {"float", d_float},
+            {"pointer", d_pointer},
+            {"reference", d_reference},
+            {"html_dom", d_html_dom},
+            {"function", d_function}};
+
+        inline opcr resolvOpecrType(std::string type)
+        {
+            if (type_map.find(type) == type_map.end())
+            {
+                return 0;
+            }
+
+            return type_map.at(type);
+        }
+
+        // stack関連
+        const opcr push = 0;
         const opcr push_int = push + d_int;
         const opcr push_str = push + d_str;
         const opcr push_float = push + d_float;
-        const opcr pop = 010;
+
+        const opcr pop = 10;
         const opcr pop_int = pop + d_int;
         const opcr pop_str = pop + d_str;
         const opcr pop_float = pop + d_float;
-        const opcr s_goto = 020;
-        const opcr s_save = 030;
-        const opcr s_save_int = 031;
-        const opcr s_save_float = 032;
+
+        const opcr s_goto = 20;
+
+        // ローカル変数関連
+
+        // オペランドスタック → ローカル変数
+        // 第3引数はローカル変数のインデックス (格納先)
+        const opcr s_store = 30;
+        const opcr s_store_int = s_store + d_int;
+        const opcr s_store_float = s_store + d_float;
+        const opcr s_store_str = s_store + d_str;
+        const opcr s_store_pointer = s_store + d_pointer;
+        const opcr s_store_reference = s_store + d_reference;
+
+        // ローカル変数 → オペランドスタック
+        // 第3引数はローカル変数のインデックス
+        const opcr s_load = 40;
+        const opcr s_load_int = s_load + d_int;
+        const opcr s_load_float = s_load + d_float;
+        const opcr s_load_str = s_load + d_str;
+        const opcr s_load_pointer = s_load + d_pointer;
+        const opcr s_load_reference = s_load + d_reference;
 
         const opcr c_add = 100;
         const opcr c_subtraction = 101;
         const opcr c_multiplication = 102;
         const opcr c_division = 103;
 
-        const opcr s_if_acmpeq = 041; //== (オブジェクト参照)
-        const opcr s_if_acmpne = 042; //!= (オブジェクト参照)
-        const opcr s_if_icmpeq = 043; // ==
-        const opcr s_if_icmpge = 044; // >=
-        const opcr s_if_icmpgt = 045; // >
-        const opcr s_if_icmple = 046; // <=
-        const opcr s_if_icmplt = 047; // <
+        const opcr s_if_acmpeq = 111; //== (オブジェクト参照)
+        const opcr s_if_acmpne = 112; //!= (オブジェクト参照)
+        const opcr s_if_icmpeq = 113; // ==
+        const opcr s_if_icmpge = 114; // >=
+        const opcr s_if_icmpgt = 115; // >
+        const opcr s_if_icmple = 116; // <=
+        const opcr s_if_icmplt = 117; // <
 
         /*
         1. **if_acmpeq**: スタック上の2つのオブジェクト参照を比較し、等しい場合に分岐します。

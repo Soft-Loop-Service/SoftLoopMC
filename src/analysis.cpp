@@ -5,7 +5,6 @@
 #include "./BNF/bnf.hpp"
 #include "./input_table.hpp"
 
-#include "./scl/scl.hpp"
 #include "./trans_kit/trans_kit.hpp"
 
 #include "./bytecode/translator/translator.hpp"
@@ -40,8 +39,6 @@ int main(int argc, char *argv[])
     Syntactic::vSyntacticTree ast = {};
     Syntactic::syntacticParseTree(cst, ast);
 
-    LanguageSpecifications::Scl::SclExpr scl_expr(ast);
-    LanguageSpecifications::parse(scl_expr);
     TransSystem::TransKit trans_kit;
     string bytecode_name = argv[3];
 

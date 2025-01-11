@@ -1,2 +1,8 @@
-23
-23
+
+function 1
+1e 1
+1e 2
+1e 3
+64
+end function 1
+

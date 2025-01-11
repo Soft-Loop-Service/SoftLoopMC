@@ -1,4 +1,4 @@
 
-function a = () => {
-    return <a style={ } > </a>;
+function a = (int b , int c , int d) => {
+    return 1 + 2;
 };
