@@ -1,9 +1,9 @@
 <S> ::= <EL>
 <EL> ::= <E> *
-<E> ::= <left> | <right> | <left> "=" <right> | <ifexpr> | <while> | <function> | <component> | <class>  | <interface> | <return> | <HTML>
+<E> ::= <left> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> ";" | <DEFINITION> ";" | <return> ";"
 
 <left> ::= <value_definition> | <value_name> | <value_name> <array>
-<right> ::= <comparison_equal> | <function_message_passing> | <array> | <json>
+<right> ::= <comparison_equal> | <function_message_passing> | <function> | <array> | <json> | <HTML>
 
 <comparison_equal> ::= <comparison_equal> "==" <comparison> | <comparison_equal> "!=" <comparison> | <comparison>
 <comparison> ::= <comparison> "<" <expr> | <comparison> "<=" <expr> | <comparison> ">" <expr> | <comparison> ">=" <expr> | <expr>
@@ -12,28 +12,25 @@
 <term> ::= <term> "*" <factor> | <term> "/" <factor>  | <term> "%" <factor> |  <factor>
 <factor> ::= "(" <right> ")" | NUM | <text>
 
-<value_definition> ::= <type_name> <value_name>
-
-<type_name> ::= "int" | "string" | "void" | "float"
+<value_definition> ::= TYPE <value_name> 
 
 <text> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | """ """ | "'" "'"
 <value_name> ::= TEXT
 
-<ifexpr> ::= <if>
-<if> ::= "if" <right> <block>
-<while> ::= "while" <right> <block>
-<function> ::= <value_definition> "(" <argument> ")" <block>
-<function_message_passing> ::= <value_name> "(" <array_line> ")"
+<ifexpr> ::= <if_while> | <if_while> <else>
+<if_while> ::= "if" "(" <right> ")" <block> | "while" "(" <right> ")" <block>
+<else> ::= "else" "if" "(" <right> ")" <block> <elseif> | "else" <block> 
+
+<function> ::= "(" <argument> ")" "=>" <block>
+
+<function_message_passing> ::= <value_name> "(" <array_line> ")" | <value_name> "(" ")"
 <argument> ::= <value_definition> "," <argument>  | <value_definition> |
 
 <return> ::= "return" | "return" <right>
 
 <block> ::= "{" <EL> "}"
 
-<component> ::= "component" TEXT <block> | "component" TEXT TEXT <block>
-
-<class> ::= "class" TEXT <block> | "class" TEXT TEXT <block>
-<interface> ::= "interface" TEXT <block>
+<DEFINITION> ::= DEFINITION TEXT <block> | DEFINITION TEXT TEXT <block>
 
 <HTML> ::= <HTML_tag_start> <HTML> <HTML_tag_end> | <HTML_tag_single> | <HTML_tag_start> TEXT <HTML_tag_end> | <HTML_tag_start> <HTML_tag_end> | <HTML_tag_start> <block> <HTML_tag_end>
 <HTML_tag_start> ::= "<" TEXT <HTML_attribute> ">" | "<" TEXT ">"

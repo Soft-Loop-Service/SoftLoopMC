@@ -1,5 +1,7 @@
 #include "./lexical_analysis.hpp"
 
+#include "./../definition.hpp"
+
 namespace LexicalAnalysis
 {
 
@@ -70,10 +72,32 @@ namespace LexicalAnalysis
             else if (isAlphabetOrNumber(source_code[i_s]))
             {
                 source_code_column++;
-                token_type = "TEXT";
                 while (isAlphabetOrNumber(source_code[i_s + token_search_len]))
                 {
                     token_search_len++;
+                }
+                token_type = "TEXT";
+
+                for (int i = 0; i < VALUE_TYPE.size(); i++)
+                {
+                    if (VALUE_TYPE[i].length() == token_search_len && strncmp(VALUE_TYPE[i].c_str(), &source_code[i_s], token_search_len) == 0)
+                    {
+                        token_type = "TYPE";
+                    }
+                }
+                for (int i = 0; i < DEFINITION_TYPE.size(); i++)
+                {
+                    if (DEFINITION_TYPE[i].length() == token_search_len && strncmp(DEFINITION_TYPE[i].c_str(), &source_code[i_s], token_search_len) == 0)
+                    {
+                        token_type = "DEFINITION";
+                    }
+                }
+                for (int i = 0; i < ACCESS_TYPE.size(); i++)
+                {
+                    if (ACCESS_TYPE[i].length() == token_search_len && strncmp(ACCESS_TYPE[i].c_str(), &source_code[i_s], token_search_len) == 0)
+                    {
+                        token_type = "ACCESS";
+                    }
                 }
             }
             else if (strchr("=+-*/!%&~|<>?:.#_", source_code[i_s]) != 0)

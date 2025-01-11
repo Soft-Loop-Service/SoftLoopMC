@@ -39,4 +39,18 @@
 #define is_id_Multiplication 1110 // 掛け算記号
 #define is_id_Division 1111       // 割り算記号
 
+const vector<string> VALUE_TYPE = {
+    "int",
+    "float",
+    "string",
+    "bool",
+    "char",
+    "void",
+    "state",
+    "Object",
+    "function",
+};
+const vector<string> DEFINITION_TYPE = {"var", "const", "class", "interface", "enum", "component", "state"};
+const vector<string> ACCESS_TYPE = {"public", "private", "protected"};
+
 #endif
