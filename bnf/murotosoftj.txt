@@ -15,11 +15,12 @@
 <value_definition> ::= TYPE <value_name> 
 
 <text> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | """ """ | "'" "'"
+<key> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | TEXT | NUM
 <value_name> ::= TEXT
 
 <ifexpr> ::= <if_while> | <if_while> <else>
 <if_while> ::= "if" "(" <right> ")" <block> | "while" "(" <right> ")" <block>
-<else> ::= "else" "if" "(" <right> ")" <block> <elseif> | "else" <block> 
+<else> ::= "else" "if" "(" <right> ")" <block> <else> | "else" <block> 
 
 <function> ::= "(" <argument> ")" "=>" <block>
 
@@ -36,10 +37,10 @@
 <HTML_tag_start> ::= "<" TEXT <HTML_attribute> ">" | "<" TEXT ">"
 <HTML_tag_end> ::= "</" TEXT ">"
 <HTML_tag_single> ::= "<" TEXT <HTML_attribute> "/>" | "<" TEXT "/>"
-<HTML_attribute> ::= <value_name> "=" <json> | <value_name> "=" <json> <HTML_attribute>
+<HTML_attribute> ::= <value_name> "=" <block> | <value_name> "=" <block> <HTML_attribute>
 
 <json> ::= "{" <json_line> "}"
-<json_line> ::= <json_line> "," <json_element> | <json_element>
+<json_line> ::= <json_line> "," <json_element> | <json_element> |
 <json_element> ::= <key> ":" <right>
 
 <array> ::= <array> "[" <array_line> "]" | "[" <array_line> "]"
