@@ -15,6 +15,9 @@ namespace Bytecode
     {
         using namespace std;
 
+        const int lacal_stack_type_function = 0;
+        const int lacal_stack_type_object = 1;
+
         struct LocalVariable
         {
             string name;
@@ -30,11 +33,14 @@ namespace Bytecode
         private:
             bool is_prossesing; // 処理中ならtrue 処理済みならfalse
             std::map<std::string, LocalVariable> local_variable_map;
+            int lacal_stack_type;
+            vint has_function_list = {}; // このLocalStackがClassの場合、下級のFunction LocalStackのindexを保持する
 
         public:
             std::ostringstream *bytecode;
 
             LocalStack();
+            LocalStack(int);
             ~LocalStack();
             int newLocalVariable(string, int);
 
@@ -45,6 +51,11 @@ namespace Bytecode
             bool isFindLocalVariable(string, int);
             bool isFindLocalVariable(string, string);
 
+            vint getHasFunctionList();
+
+            int getLocalStackType();
+            void pushHasFunctionList(int);
+
             LocalVariable getLocalVariable(string);
         };
 
@@ -52,7 +63,8 @@ namespace Bytecode
         {
         private:
             ofstream *outputfile;
-            int function_latest_id;
+            int function_class_latest_id;
+
             vector<LocalStack> local_stack;
             int current_local_stack_index;
 
@@ -70,14 +82,17 @@ namespace Bytecode
             void putOpecode(opcr, vint);
             void putOpecode(opcr, vstring);
 
+            void registryFunctionToClass(int);
+
             int getProcessingStackTop();
 
             void switchFunction();
             void returnFunction();
-
+            void switchClass();
+            void returnClass();
             // あたらにLocalStackを作成
             void newLocalStack();
-
+            void newLocalStack(int);
             // 処理済みのLocalStackのフラグを帰る
             void processedStackTop();
             void processedStack(int);

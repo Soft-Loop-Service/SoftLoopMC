@@ -1,0 +1,19 @@
+
+function 2
+031 1
+001 1
+001 2
+100
+041 0
+end function 2
+
+
+class 1
+038 1
+031 2
+     has_function 2
+end class 1
+
+
+030 1
+

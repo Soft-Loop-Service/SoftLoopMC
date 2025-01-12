@@ -20,7 +20,11 @@ namespace Bytecode
             int index = bo->newLocalVariable(name, Opecode::resolvOpecrType(type));
             bo->putOpecode(Opecode::s_store + Opecode::resolvOpecrType(type), index);
         }
-
+        void definitionValue(BytecodeOutput *bo, string name, int type)
+        {
+            int index = bo->newLocalVariable(name, type);
+            bo->putOpecode(Opecode::s_store + type, index);
+        }
         void definitionValue(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = tree[current_node_index];
@@ -130,15 +134,15 @@ namespace Bytecode
                     string definition_type = tree[current_node.children[0]].token;
                     string definition_name = tree[current_node.children[1]].token;
 
-                    bo->switchFunction();
+                    bo->switchClass();
 
                     if (definition_type == "class")
                     {
-                        definitionValue(bo, definition_name, "class");
+                        definitionValue(bo, definition_name, Opecode::d_class);
                     }
                     if (definition_type == "component")
                     {
-                        definitionValue(bo, definition_name, "class");
+                        definitionValue(bo, definition_name, Opecode::d_class);
                     }
 
                     if (current_node.children.size() == 3)
@@ -150,7 +154,23 @@ namespace Bytecode
                         recursionTree(tree, bo, current_node_index, current_node.children[3]);
                     }
 
-                    bo->returnFunction();
+                    bo->returnClass();
+
+                    return;
+                }
+
+                else if (current_node.token == "<new_class>")
+                {
+
+                    if (current_node.children.size() < 3 || 4 < current_node.children.size())
+                    {
+                        return;
+                    }
+
+                    LocalVariable lv = bo->findLocalVariable(tree[current_node.children[1]].token, Opecode::d_class);
+                    bo->putOpecode(Opecode::s_instance, lv.index);
+
+                    return;
                 }
             }
 

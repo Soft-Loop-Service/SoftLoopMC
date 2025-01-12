@@ -32,7 +32,7 @@
 <function> ::= "(" <argument> ")" "=>" <block>
 
 <function_message_passing> ::= <value_name> "(" <array_line> ")" | <value_name> "(" ")" 
-<new_class> ::= "new" <function_message_passing>
+<new_class> ::= "new" TYPE "(" <array_line> ")" | "new" TYPE "(" ")" 
 
 <argument> ::= <value_definition> "," <argument>  | <value_definition> |
 
@@ -40,7 +40,7 @@
 
 <block> ::= "{" <EL> "}"
 
-<DEFINITION> ::= DEFINITION TEXT <block> | DEFINITION TEXT "extends" TEXT <block>
+<DEFINITION> ::= DEFINITION TYPE <block> | DEFINITION TYPE "extends" TYPE <block>
 
 <HTML> ::= <HTML_tag_start> <HTML_children> <HTML_tag_end> | <HTML_tag_single>
 <HTML_children> ::= <HTML> <HTML_children> | TEXT | <block> |

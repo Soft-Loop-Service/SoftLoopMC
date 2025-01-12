@@ -1,6 +1,9 @@
-class Hello {
-};
 
 class Hoge {
-    1 + 2;
+    int f = () => {
+        int a = 1 + 2;
+        return a;
+    };
 };
+
+Hoge a = new Hoge();

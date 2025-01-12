@@ -145,6 +145,8 @@ namespace LexicalAnalysis
         struct LexicalToken tsd = {DOLLAR, DOLLAR};
         lexical_token.push_back(tsd);
 
+        vector<string> token_class_type = {};
+
         for (int i = lexical_token.size() - 1; i > 0; i--)
         {
             LexicalToken tb = lexical_token[i - 1];
@@ -159,6 +161,25 @@ namespace LexicalAnalysis
             {
                 lexical_token[i - 1].token = "/>";
                 lexical_token.erase(lexical_token.begin() + i);
+            }
+            else if (tb.token_type == "DEFINITION" && tc.token_type == "TEXT")
+            {
+                lexical_token[i].token_type = "TYPE";
+                token_class_type.push_back(tc.token);
+            }
+        }
+
+        for (int i = 0; i < lexical_token.size(); i++)
+        {
+            if (lexical_token[i].token_type == "TEXT")
+            {
+                for (int j = 0; j < token_class_type.size(); j++)
+                {
+                    if (lexical_token[i].token == token_class_type[j])
+                    {
+                        lexical_token[i].token_type = "TYPE";
+                    }
+                }
             }
         }
 

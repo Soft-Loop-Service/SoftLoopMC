@@ -15,7 +15,7 @@ namespace Bytecode
             outputfile = new ofstream(file_name);
             local_stack = {};
             local_stack.emplace_back();
-            function_latest_id = 0;
+            function_class_latest_id = 0;
             current_local_stack_index = 0;
         }
         string BytecodeOutput::getHex(opcr opecode)
@@ -26,7 +26,9 @@ namespace Bytecode
         }
         void BytecodeOutput::putHex(opcr opecode)
         {
-            *(local_stack[current_local_stack_index].bytecode) << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(opecode);
+            *(local_stack[current_local_stack_index].bytecode) << std::setw(3) << std::setfill('0') << opecode;
+            return;
+            // *(local_stack[current_local_stack_index].bytecode) << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(opecode);
         }
         void BytecodeOutput::putOpecode(opcr opecode)
         {
@@ -80,11 +82,32 @@ namespace Bytecode
         {
             outputfile->close();
         }
+        void BytecodeOutput::switchClass()
+        {
+            function_class_latest_id++;
+            newLocalStack(lacal_stack_type_object);
+
+            *(local_stack[current_local_stack_index].bytecode) << "class " << current_local_stack_index << "\n";
+        }
+
+        void BytecodeOutput::returnClass()
+        {
+            vint has = local_stack[current_local_stack_index].getHasFunctionList();
+            *(local_stack[current_local_stack_index].bytecode) << "     has_function ";
+            for (int i = 0; i < has.size(); i++)
+            {
+                *(local_stack[current_local_stack_index].bytecode) << has[i] << "";
+            }
+            *(local_stack[current_local_stack_index].bytecode) << "\n";
+
+            *(local_stack[current_local_stack_index].bytecode) << "end class " << current_local_stack_index << "\n";
+            processedStackTop();
+        }
 
         void BytecodeOutput::switchFunction()
         {
-            function_latest_id++;
-            newLocalStack();
+            function_class_latest_id++;
+            newLocalStack(lacal_stack_type_function);
 
             *(local_stack[current_local_stack_index].bytecode) << "function " << current_local_stack_index << "\n";
         }
@@ -93,8 +116,28 @@ namespace Bytecode
         {
             *(local_stack[current_local_stack_index].bytecode) << "end function " << current_local_stack_index << "\n";
             processedStackTop();
+            registryFunctionToClass(function_class_latest_id);
         }
 
+        void BytecodeOutput::registryFunctionToClass(int function_id)
+        {
+            for (int i = local_stack.size() - 1; i >= 0; i--)
+            {
+                if (local_stack[i].getLocalStackType() == lacal_stack_type_object)
+                {
+                    local_stack[i].pushHasFunctionList(function_id);
+                    return;
+                }
+            }
+        }
+
+        void BytecodeOutput::newLocalStack(int s_type)
+        {
+            printf("newLocalStack %10d\n", local_stack.size());
+            local_stack.emplace_back(s_type);
+            printf("newLocalStack %10d\n", local_stack.size());
+            current_local_stack_index = getProcessingStackTop();
+        }
         void BytecodeOutput::newLocalStack()
         {
             printf("newLocalStack %10d\n", local_stack.size());
@@ -206,12 +249,29 @@ namespace Bytecode
             is_prossesing = true;
             local_variable_map = {};
             bytecode = new std::ostringstream();
+            lacal_stack_type = lacal_stack_type_object;
+        }
+        LocalStack::LocalStack(int s_type)
+        {
+            is_prossesing = true;
+            local_variable_map = {};
+            bytecode = new std::ostringstream();
+            lacal_stack_type = s_type;
         }
 
         LocalStack::~LocalStack()
         {
         }
 
+        void LocalStack::pushHasFunctionList(int index)
+        {
+            has_function_list.push_back(index);
+        }
+
+        int LocalStack::getLocalStackType()
+        {
+            return lacal_stack_type;
+        }
         void LocalStack::setIsProcessed(int flag)
         {
             is_prossesing = flag;
@@ -220,6 +280,11 @@ namespace Bytecode
         bool LocalStack::getIsProcessed()
         {
             return is_prossesing;
+        }
+
+        vint LocalStack::getHasFunctionList()
+        {
+            return has_function_list;
         }
 
         int LocalStack::newLocalVariable(string name, int type)
