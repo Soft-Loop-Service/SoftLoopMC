@@ -171,7 +171,7 @@ namespace Bytecode
             if (current_node.token_label == is_id_TerminalSymbol)
             {
 
-                if (current_node.parent_token == "<factor>")
+                if (current_node.parent_token == "<number>")
                 {
                     bo->putOpecode(isFloat(current_node.token) ? Opecode::push_float : Opecode::push_int, current_node.token);
                 }

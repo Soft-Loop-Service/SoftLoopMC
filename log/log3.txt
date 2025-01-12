@@ -1,0 +1,25 @@
+bnf_file_name bnf/murotosoftj.txt
+read_size : bnf/murotosoftj.txt 2480
+bnf_token 542 263 142 121
+char size 8 8 1
+resizeArray 0
+resize int array ok : resize 42 -> 168 sizeof 4
+DFA NODEDFA NODE : {1} root                          
+DFA NODE : {2} <S>                           
+
+outputDFA * * * * 
+ε—η† 0   root ( <S> 1 ) 
+ε—η† 1    <S> 
+outputDFA ITEM * * * * 
+0 0 0 dot : 0 ITEMηΎ¤ : <_S> ::= <S> , ε…θª­γΏθ¨ε· : $ ,  
+1 0 0 dot : 1 ITEMηΎ¤ : <_S> ::= <S> , ε…θª­γΏθ¨ε· : $ ,  
+ε‡¦η†ηµ‚δΊ†
+  : <DEFINITION>       <E>    <HTML><HTML_attribute><HTML_tag_end><HTML_tag_single><HTML_tag_start><argument>   <array><array_line>   <block><comparison><comparison_equal>    <else>    <expr>  <factor><function><function_message_passing><if_while>  <ifexpr>    <json><json_element><json_line>     <key>    <left><method_message_passing><new_class>  <return>   <right>    <term>    <text><value_definition><value_name>
+ 0 :                                                                                                                                                                                                                                                                                                                                           
+ 1 :                                                                                                                                                                                                                                                                                                                                           
+  :         !=         "         $         %         '         (         )         *         +         ,         -         .         /        />         :         ;         <        </        <=         =        ==        =>         >        >=DEFINITION       NUM      TEXT      TYPE         [         ]      else   extends        if       new    return     while         {         }    πρ	ffU    πσ	ffU    πυ	ffU    πχ	ffU    πω	ffU
+ 0 :                                                                                                                                                                                                                                                                                                                                                                                                                                               
+ 1 :                                                                                                                                                                                                                                                                                                                                                                                                                                               
+  :         !=         "         $         %         '         (         )         *         +         ,         -         .         /        />         :         ;         <        </        <=         =        ==        =>         >        >=DEFINITION       NUM      TEXT      TYPE         [         ]      else   extends        if       new    return     while         {         }    πρ	ffU    πσ	ffU    πυ	ffU    πχ	ffU    πω	ffU
+ 0 :                                                                                                                                                                                                                                                                                                                                                                                                                                               
+ 1 :                           <_S>                                                                                                                                                                                                                                                                                                   

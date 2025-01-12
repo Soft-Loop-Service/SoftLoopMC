@@ -12,3 +12,10 @@ e();
 p  + 1;
 
 int k = a();
+
+class Hello {
+};
+
+class Hoge {
+    1 + 2;
+};

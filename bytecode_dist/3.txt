@@ -1,5 +1,38 @@
 
-01 1
-01 2
+function 1
+1f 1
+1f 2
+1f 3
+1f 4
+29 1
+64
+65
+end function 1
+
+
+function 2
+26 1
+end function 2
+
+
+function 3
+26 1
+64
+end function 3
+
+
+25 1
+2f 0
+14
+2f 0
+14
+2f 0
+14
+2f 0
+14
+64
+1f 2
+2f 0
+14
 64
 

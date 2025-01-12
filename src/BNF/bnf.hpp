@@ -8,7 +8,7 @@
 namespace BNFParse
 {
     const int bnf_token_len = 50; // BNFトークンの最大長
-    const int bnf_token_arr_len = 500;
+    const int bnf_token_arr_len = 1000;
 
     struct stest;
     struct BNFToken;
@@ -35,7 +35,7 @@ namespace BNFParse
     int parseBnf(char *source_code, BNFToken &bnf_token_p);
     void dequeueBNFRight(qustr &bnf_que, v2string &bnf_right);
     void generateBNFRight(BNFToken &bnf_token_p, BNFSymbol &bnf_symbol_p, RetrieveSymbol &nonterminal_symbol_left, int current_left, v2string &bnf_right_tokens, mp_s_i &bnf_right_map);
-    
+
     int searchRetrieveSymbolTableDuplication(BNFToken &bnf_token_p, BNFSymbol &bnf_symbol_p, int *array, int len, int current_number);
     int retrieveSymbolTable(BNFToken &bnf_token_p, BNFSymbol &bnf_symbol_p, RetrieveSymbol &retrieve_symbol, int target_id);
     int retrieveSymbolTable(BNFToken &bnf_token_p, RetrieveSymbol &retrieve_symbol, int target_id);

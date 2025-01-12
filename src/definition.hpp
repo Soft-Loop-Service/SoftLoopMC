@@ -48,7 +48,7 @@ const int token_progression_arr_size = 10000; // 変数の最大数
 // const int token_size = 50;           // tokenの最大文字数
 // const int variable_size = 50;        // variableの最大文字数
 
-#define code_token_len 50 // BNFトークンの最大長
+#define code_token_len 100 // BNFトークンの最大長
 #define code_token_arr_len 500
 
 // 最大ソースコード容量 1MBまで対応

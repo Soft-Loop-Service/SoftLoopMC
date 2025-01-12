@@ -57,6 +57,9 @@ namespace BNFParse
 
                     struct DeploymentTokenStruct token;
                     token.token_str = bnf_right_tokens[j][k];
+
+                    printf("token_str %s\n", token.token_str.c_str());
+
                     token.label = bnf_right_map[token.token_str];
 
                     formula_expansion.token_vector.push_back(token);

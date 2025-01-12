@@ -1,19 +1,26 @@
 <S> ::= <EL>
 <EL> ::= <E> *
-<E> ::= <left> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> ";" | <DEFINITION> ";" | <return> ";"
+<E> ::= <value_definition> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> ";" | <DEFINITION> ";" | <return> ";"
 
-<left> ::= <value_definition> | <value_name> | <value_name> <array>
-<right> ::= <comparison_equal> | <function_message_passing> | <function> | <array> | <json> | <HTML>
+<left> ::= <expression> | <value_definition>
+<right> ::= <comparison_equal> | <json> | <new_class> | <function> | <HTML>
 
 <comparison_equal> ::= <comparison_equal> "==" <comparison> | <comparison_equal> "!=" <comparison> | <comparison>
 <comparison> ::= <comparison> "<" <expr> | <comparison> "<=" <expr> | <comparison> ">" <expr> | <comparison> ">=" <expr> | <expr>
 
 <expr> ::= <expr> "+" <term> | <expr> "-" <term> | <term>
-<term> ::= <term> "*" <factor> | <term> "/" <factor>  | <term> "%" <factor> |  <factor>
-<factor> ::= "(" <right> ")" | NUM | <text> | <value_name>
+<term> ::= <term> "*" <factor> | <term> "/" <factor>  | <term> "%" <factor> | <factor>
+<factor> ::= <expression> | "(" <right> ")" | <number> | <text> | <array>
 
 <value_definition> ::= TYPE <value_name> 
 
+<expression> ::= <identifier> | <identifier> <rest>
+<rest>       ::= <property> | <property> <rest>
+<property>   ::= <dot_property> | <array>
+<dot_property> ::= "." <identifier>
+<identifier> ::= <value_name> | <function_message_passing> | "(" <expression> ")"
+
+<number> ::= NUM
 <text> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | """ """ | "'" "'"
 <key> ::= """ TEXT """ | "'" TEXT "'" | """ NUM """ | "'" NUM "'" | TEXT | NUM
 <value_name> ::= TEXT
@@ -24,16 +31,20 @@
 
 <function> ::= "(" <argument> ")" "=>" <block>
 
-<function_message_passing> ::= <value_name> "(" <array_line> ")" | <value_name> "(" ")"
+<function_message_passing> ::= <value_name> "(" <array_line> ")" | <value_name> "(" ")" 
+<new_class> ::= "new" <function_message_passing>
+
 <argument> ::= <value_definition> "," <argument>  | <value_definition> |
 
 <return> ::= "return" | "return" <right>
 
 <block> ::= "{" <EL> "}"
 
-<DEFINITION> ::= DEFINITION TEXT <block> | DEFINITION TEXT TEXT <block>
+<DEFINITION> ::= DEFINITION TEXT <block> | DEFINITION TEXT "extends" TEXT <block>
 
-<HTML> ::= <HTML_tag_start> <HTML> <HTML_tag_end> | <HTML_tag_single> | <HTML_tag_start> TEXT <HTML_tag_end> | <HTML_tag_start> <HTML_tag_end> | <HTML_tag_start> <block> <HTML_tag_end>
+<HTML> ::= <HTML_tag_start> <HTML_children> <HTML_tag_end> | <HTML_tag_single>
+<HTML_children> ::= <HTML> <HTML_children> | TEXT | <block> |
+
 <HTML_tag_start> ::= "<" TEXT <HTML_attribute> ">" | "<" TEXT ">"
 <HTML_tag_end> ::= "</" TEXT ">"
 <HTML_tag_single> ::= "<" TEXT <HTML_attribute> "/>" | "<" TEXT "/>"
@@ -43,5 +54,5 @@
 <json_line> ::= <json_line> "," <json_element> | <json_element> |
 <json_element> ::= <key> ":" <right>
 
-<array> ::= <array> "[" <array_line> "]" | "[" <array_line> "]"
+<array> ::= "[" <array_line> "]"
 <array_line> ::= <array_line> "," <right> | <right>
