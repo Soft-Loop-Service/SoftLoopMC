@@ -35,12 +35,13 @@ namespace Bytecode
             int local_stack_type;
             vint children = {}; // 木構造の子要素のindexを保持する
             int parent;
+            int directly_index;
 
         public:
             std::ostringstream *bytecode;
 
             LocalStack();
-            LocalStack(int, int);
+            LocalStack(int, int, int);
             ~LocalStack();
             int newLocalVariable(string, int, opcr);
 
@@ -53,6 +54,8 @@ namespace Bytecode
             int getParent();
 
             int getLocalStackType();
+
+            int getDirectlyIndex();
 
             void putChild(int);
 
@@ -68,6 +71,8 @@ namespace Bytecode
             vector<LocalStack> local_stack;
             int current_local_stack_index;
 
+            int anonymous_function_count = 0;
+
         public:
             vstring token_class_type;
             BytecodeOutput(string file_name, vstring tct);
@@ -77,6 +82,8 @@ namespace Bytecode
 
             void setCurrentLocalStackIndex(int);
             int getCurrentLocalStackIndex();
+
+            string getAnonymousFunctionName();
 
             void putHex(opcr opecode);
             string getHex(opcr opecode);
@@ -96,13 +103,13 @@ namespace Bytecode
 
             void processedStackTop();
 
-            void switchFunction();
+            void switchFunction(int);
             void returnFunction();
-            void switchClass();
+            void switchClass(int);
             void returnClass();
             // あたらにLocalStackを作成
             void newLocalStack();
-            void newLocalStack(opcr);
+            void newLocalStack(opcr, int);
 
             bool isFindLocalVariable(string);
             LocalVariable findLocalVariable(string);

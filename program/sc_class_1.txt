@@ -1,4 +1,6 @@
-
 function a = () => {
-    a();
+    return 3;
 };
+
+
+int k = a();

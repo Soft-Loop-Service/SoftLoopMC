@@ -1,9 +1,12 @@
 
-# function 1
+# function ci :1| di :1
+010 100 3
+# end function ci :1| di :1
+
+
+010 700 1
+030 700 0
 040 700 0
 020
-# end function 1
-
-
-040 700 0
+030 100 2
 

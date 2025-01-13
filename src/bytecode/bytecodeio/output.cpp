@@ -167,11 +167,11 @@ namespace Bytecode
 
             outputfile->close();
         }
-        void BytecodeOutput::switchClass()
+        void BytecodeOutput::switchClass(int directly_index)
         {
-            newLocalStack(local_stack_type_object);
+            newLocalStack(local_stack_type_object, directly_index);
 
-            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# class " << getCurrentLocalStackIndex() << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# class ci :" << getCurrentLocalStackIndex() << "| di :" << directly_index << "\n";
         }
 
         void BytecodeOutput::returnClass()
@@ -184,27 +184,32 @@ namespace Bytecode
             }
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
 
-            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end class " << getCurrentLocalStackIndex() << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end class ci :" << getCurrentLocalStackIndex() << "| di :" << local_stack[getCurrentLocalStackIndex()].getDirectlyIndex() << "\n";
             processedStackTop();
         }
 
-        void BytecodeOutput::switchFunction()
+        void BytecodeOutput::switchFunction(int directly_index)
         {
-            newLocalStack(local_stack_type_function);
+            newLocalStack(local_stack_type_function, directly_index);
 
-            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# function " << getCurrentLocalStackIndex() << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# function ci :" << getCurrentLocalStackIndex() << "| di :" << directly_index << "\n";
         }
 
         void BytecodeOutput::returnFunction()
         {
-            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end function " << getCurrentLocalStackIndex() << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end function ci :" << getCurrentLocalStackIndex() << "| di :" << local_stack[getCurrentLocalStackIndex()].getDirectlyIndex() << "\n";
             processedStackTop();
         }
 
-        void BytecodeOutput::newLocalStack(opcr s_type)
+        string BytecodeOutput::getAnonymousFunctionName()
+        {
+            return "af_" + std::to_string(anonymous_function_count++);
+        }
+
+        void BytecodeOutput::newLocalStack(opcr s_type, int directly_index)
         {
             int parent = getCurrentLocalStackIndex();
-            local_stack.emplace_back(s_type, parent);
+            local_stack.emplace_back(s_type, parent, directly_index);
 
             int new_index = local_stack.size() - 1;
             printf("newLocalStack p:%10d cc:%10d -> nc:%10d \n", parent, getCurrentLocalStackIndex(), new_index);
@@ -319,7 +324,7 @@ namespace Bytecode
             local_stack_type = local_stack_type_object;
             parent = -1;
         }
-        LocalStack::LocalStack(int s_type, int p)
+        LocalStack::LocalStack(int s_type, int p, int di)
         {
             printf("LocalStack::LocalStack %d %d\n", s_type, p);
 
@@ -328,6 +333,7 @@ namespace Bytecode
             bytecode = new std::ostringstream();
             local_stack_type = s_type;
             parent = p;
+            directly_index = di;
         }
 
         LocalStack::~LocalStack()
@@ -352,6 +358,11 @@ namespace Bytecode
         vint LocalStack::getChidren()
         {
             return children;
+        }
+
+        int LocalStack::getDirectlyIndex()
+        {
+            return directly_index;
         }
 
         int LocalStack::newLocalVariable(string name, int index, opcr type)

@@ -68,8 +68,11 @@ namespace Bytecode
         }
 
         // stack関連
-        const opcr push = 10;
-        const opcr pop = 11;
+        const opcr push = 10; // スタックに数値もしくは文字列を積む 第2引数は型 第3引数は値
+
+        const opcr push_function = 11; // 関数をスタックに積む 第2引数は関数のインデックス
+
+        const opcr pop = 15; // スタックから削除。ただしどこにも記録しない。
 
         const opcr s_invokevirtual = 20;             // 関数呼び出し
         const opcr s_invokevirtual_constructor = 21; // コンストラクタ呼び出し
@@ -78,10 +81,12 @@ namespace Bytecode
         // ローカル変数関連
 
         // オペランドスタック → ローカル変数
+        // 第2引数は型
         // 第3引数はローカル変数のインデックス (格納先)
         const opcr s_store = 30;
 
         // ローカル変数 → オペランドスタック
+        // 第2引数は型
         // 第3引数はローカル変数のインデックス
         const opcr s_load = 40;
 
@@ -98,6 +103,10 @@ namespace Bytecode
         const opcr s_if_icmple = 116; // <=
         const opcr s_if_icmplt = 117; // <
 
+        const opcr head_start_function = 240;
+        const opcr head_end_function = 241;
+        const opcr head_start_class = 242;
+        const opcr head_end_class = 242;
         /*
         1. **if_acmpeq**: スタック上の2つのオブジェクト参照を比較し、等しい場合に分岐します。
         2. **if_acmpne**: スタック上の2つのオブジェクト参照を比較し、等しくない場合に分岐します。

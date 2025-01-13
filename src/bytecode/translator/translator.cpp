@@ -15,15 +15,17 @@ namespace Bytecode
             return (token.find(".") != string::npos);
         }
 
-        void definitionValue(BytecodeOutput *bo, string name, string type)
+        int definitionValue(BytecodeOutput *bo, string name, string type)
         {
             int index = bo->newLocalVariable(name, Opecode::resolvOpecrType(type, bo->token_class_type));
             bo->putOpecode(Opecode::s_store, Opecode::resolvOpecrType(type, bo->token_class_type), index);
+            return index;
         }
-        void definitionValue(BytecodeOutput *bo, string name, opcr type)
+        int definitionValue(BytecodeOutput *bo, string name, opcr type)
         {
             int index = bo->newLocalVariable(name, type);
             bo->putOpecode(Opecode::s_store, type, index);
+            return index;
         }
         void definitionValue(BytecodeOutput *bo, string name, string type, int index)
         {
@@ -33,13 +35,13 @@ namespace Bytecode
         {
             bo->putOpecode(Opecode::s_store, type, index);
         }
-        void definitionValue(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        int definitionValue(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = tree[current_node_index];
             string type = tree[current_node.children[0]].token;
             string name = tree[current_node.children[1]].token;
             printf("definitionValue %s %s\n", type.c_str(), name.c_str());
-            definitionValue(bo, name, type);
+            return definitionValue(bo, name, type);
         }
 
         void recursionLeftBefore(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
@@ -80,7 +82,7 @@ namespace Bytecode
                         printf("error : %s is underfind\n", current_node.token.c_str());
                         return;
                     }
-                    bo->putOpecode(Opecode::s_load, lv.type, lv.index);
+                    bo->putOpecode(Opecode::s_store, lv.type, lv.index);
                     return;
                 }
             }
@@ -95,7 +97,7 @@ namespace Bytecode
                         printf("error : %s is underfind\n", current_node.token.c_str());
                         return;
                     }
-                    bo->putOpecode(Opecode::s_load, lv.type, lv.index);
+                    bo->putOpecode(Opecode::s_store, lv.type, lv.index);
                 }
             }
 
@@ -146,7 +148,10 @@ namespace Bytecode
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s\n",
                            "function", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str());
 
-                    bo->switchFunction();
+                    int directly_index = bo->newLocalVariable(bo->getAnonymousFunctionName(), Opecode::d_function);
+                    bo->putOpecode(Opecode::push, Opecode::d_function, directly_index);
+
+                    bo->switchFunction(directly_index);
 
                     // 引数がある場合 index 1は => 2は記号
                     if (current_node.children.size() == 3)
@@ -226,15 +231,14 @@ namespace Bytecode
                     string definition_type = tree[current_node.children[0]].token;
                     string definition_name = tree[current_node.children[1]].token;
 
-                    if (definition_type == "class")
+                    int directly_index = -1;
+
+                    if (definition_type == "class" || definition_type == "component")
                     {
-                        definitionValue(bo, definition_name, definition_name);
+                        directly_index = definitionValue(bo, definition_name, definition_name);
                     }
-                    if (definition_type == "component")
-                    {
-                        definitionValue(bo, definition_name, definition_name);
-                    }
-                    bo->switchClass();
+
+                    bo->switchClass(directly_index);
 
                     if (current_node.children.size() == 3)
                     {
