@@ -1,20 +1,9 @@
 
-# function 2
-010 100 1
-010 100 2
-100
-030 100 1
-040 100 1
-# end function 2
+# function 1
+040 700 0
+020
+# end function 1
 
 
-# class 1
-030 700 2
-#     has_function 2 
-# end class 1
-
-
-030 801 0
-022 0
-030 801 3
+040 700 0
 

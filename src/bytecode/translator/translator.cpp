@@ -25,6 +25,14 @@ namespace Bytecode
             int index = bo->newLocalVariable(name, type);
             bo->putOpecode(Opecode::s_store, type, index);
         }
+        void definitionValue(BytecodeOutput *bo, string name, string type, int index)
+        {
+            bo->putOpecode(Opecode::s_store, Opecode::resolvOpecrType(type, bo->token_class_type), index);
+        }
+        void definitionValue(BytecodeOutput *bo, string name, opcr type, int index)
+        {
+            bo->putOpecode(Opecode::s_store, type, index);
+        }
         void definitionValue(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = tree[current_node_index];
@@ -32,6 +40,72 @@ namespace Bytecode
             string name = tree[current_node.children[1]].token;
             printf("definitionValue %s %s\n", type.c_str(), name.c_str());
             definitionValue(bo, name, type);
+        }
+
+        void recursionLeftBefore(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = tree[current_node_index];
+
+            if (current_node.token_label == is_id_NonterminalSymbol)
+            {
+                if (current_node.token == "<value_definition>")
+                {
+                    string type = tree[current_node.children[0]].token;
+                    string name = tree[current_node.children[1]].token;
+                    bo->newLocalVariable(name, Opecode::resolvOpecrType(type, bo->token_class_type));
+                    return;
+                }
+            }
+            for (int i = 0; i < current_node.children.size(); i++)
+            {
+                printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
+                       "left before", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
+                recursionLeftBefore(tree, bo, current_node_index, current_node.children[i]);
+                printf("Translator RecursionTree %15s : %5d | Return \n", "left before", current_node_index);
+            }
+        }
+        void recursionLeftAfter(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = tree[current_node_index];
+
+            if (current_node.token_label == is_id_NonterminalSymbol)
+            {
+                if (current_node.token == "<value_definition>")
+                {
+                    string type = tree[current_node.children[0]].token;
+                    string name = tree[current_node.children[1]].token;
+                    LocalVariable lv = bo->findLocalVariable(name);
+                    if (lv.name == "underfind")
+                    {
+                        printf("error : %s is underfind\n", current_node.token.c_str());
+                        return;
+                    }
+                    bo->putOpecode(Opecode::s_load, lv.type, lv.index);
+                    return;
+                }
+            }
+
+            if (current_node.token_label == is_id_TerminalSymbol)
+            {
+                if (current_node.parent_token == "<value_name>")
+                {
+                    LocalVariable lv = bo->findLocalVariable(current_node.token);
+                    if (lv.name == "underfind")
+                    {
+                        printf("error : %s is underfind\n", current_node.token.c_str());
+                        return;
+                    }
+                    bo->putOpecode(Opecode::s_load, lv.type, lv.index);
+                }
+            }
+
+            for (int i = 0; i < current_node.children.size(); i++)
+            {
+                printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
+                       "left after", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
+                recursionLeftAfter(tree, bo, current_node_index, current_node.children[i]);
+                printf("Translator RecursionTree %15s : %5d | Return \n", "left after", current_node_index);
+            }
         }
 
         // argument制御
@@ -62,6 +136,8 @@ namespace Bytecode
         void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = tree[current_node_index];
+
+            printf("* * * recursionTree %d \n", current_node_index);
 
             if (current_node.token_label == is_id_NonterminalSymbol)
             {
@@ -108,8 +184,8 @@ namespace Bytecode
                 }
                 else if (current_node.token == "<function_message_passing>")
                 {
-                    printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
-                           "function_message_passing", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[1], tree[current_node.children[1]].token.c_str());
+                    printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s\n",
+                           "function_message_passing", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str());
 
                     if (current_node.children.size() == 0 || current_node.children.size() > 2)
                     {
@@ -209,6 +285,7 @@ namespace Bytecode
             {
                 if (current_node.token == "=")
                 {
+                    recursionLeftBefore(tree, bo, current_node_index, current_node.children[0]);
                     for (int i = 1; i < current_node.children.size(); i++)
                     {
                         printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
@@ -220,7 +297,7 @@ namespace Bytecode
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
                            "= left", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[0], tree[current_node.children[0]].token.c_str());
 
-                    recursionTree(tree, bo, current_node_index, current_node.children[0]);
+                    recursionLeftAfter(tree, bo, current_node_index, current_node.children[0]);
                     printf("Translator RecursionTree %15s : %5d | Return \n", "= left", current_node_index);
 
                     return;

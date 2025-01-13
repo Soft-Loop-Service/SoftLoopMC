@@ -1,10 +1,4 @@
 
-class Hoge {
-    function f = () => {
-        int a = 1 + 2;
-        return a;
-    };
+function a = () => {
+    a();
 };
-
-
-Hoge helloWorld = new Hoge();
