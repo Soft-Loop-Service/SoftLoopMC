@@ -15,47 +15,48 @@ namespace Bytecode
     {
         using namespace std;
 
-        const int lacal_stack_type_function = 0;
-        const int lacal_stack_type_object = 1;
+        const int local_stack_type_function = 0;
+        const int local_stack_type_object = 1;
 
         struct LocalVariable
         {
             string name;
             int index;
-            int type; // type_mapに依存
+            opcr type; // type_mapに依存
 
             LocalVariable() : name("void"), index(-1), type(0) {}
-            LocalVariable(string name, int index, int type) : name(name), index(index), type(type) {}
+            LocalVariable(string name, int index, opcr type) : name(name), index(index), type(type) {}
         };
 
         class LocalStack
         {
         private:
-            bool is_prossesing; // 処理中ならtrue 処理済みならfalse
             std::map<std::string, LocalVariable> local_variable_map;
-            int lacal_stack_type;
-            vint has_function_list = {}; // このLocalStackがClassの場合、下級のFunction LocalStackのindexを保持する
+            int local_stack_type;
+            vint children = {}; // 木構造の子要素のindexを保持する
+            int parent;
 
         public:
             std::ostringstream *bytecode;
 
             LocalStack();
-            LocalStack(int);
+            LocalStack(int, int);
             ~LocalStack();
-            int newLocalVariable(string, int);
-
-            void setIsProcessed(int);
-            bool getIsProcessed();
+            int newLocalVariable(string, int, opcr);
 
             bool isFindLocalVariable(string);
-            bool isFindLocalVariable(string, int);
+            bool isFindLocalVariable(string, opcr);
             bool isFindLocalVariable(string, string);
 
-            vint getHasFunctionList();
+            vint getChidren();
+
+            int getParent();
 
             int getLocalStackType();
-            void pushHasFunctionList(int);
 
+            void putChild(int);
+
+            std::map<std::string, LocalVariable> getLocalVariableMap();
             LocalVariable getLocalVariable(string);
         };
 
@@ -63,28 +64,37 @@ namespace Bytecode
         {
         private:
             ofstream *outputfile;
-            int function_class_latest_id;
 
             vector<LocalStack> local_stack;
             int current_local_stack_index;
 
         public:
-            BytecodeOutput(string file_name);
+            vstring token_class_type;
+            BytecodeOutput(string file_name, vstring tct);
             ~BytecodeOutput();
 
-            int newLocalVariable(string, int);
+            int newLocalVariable(string, opcr);
+
+            void setCurrentLocalStackIndex(int);
+            int getCurrentLocalStackIndex();
 
             void putHex(opcr opecode);
             string getHex(opcr opecode);
             void putOpecode(opcr);
             void putOpecode(opcr, int);
             void putOpecode(opcr, string);
+
+            void putOpecode(opcr, opcr);
+            void putOpecode(opcr, opcr, int);
+            void putOpecode(opcr, opcr, string);
+
             void putOpecode(opcr, vint);
             void putOpecode(opcr, vstring);
 
-            void registryFunctionToClass(int);
+            void putOpecode(opcr, opcr, vint);
+            void putOpecode(opcr, opcr, vstring);
 
-            int getProcessingStackTop();
+            void processedStackTop();
 
             void switchFunction();
             void returnFunction();
@@ -92,19 +102,15 @@ namespace Bytecode
             void returnClass();
             // あたらにLocalStackを作成
             void newLocalStack();
-            void newLocalStack(int);
-            // 処理済みのLocalStackのフラグを帰る
-            void processedStackTop();
-            void processedStack(int);
+            void newLocalStack(opcr);
 
             bool isFindLocalVariable(string);
             LocalVariable findLocalVariable(string);
 
-            bool isFindLocalVariable(string, int);
-            LocalVariable findLocalVariable(string, int);
+            bool isFindLocalVariable(string, opcr);
+            LocalVariable findLocalVariable(string, opcr);
         };
 
     }
-
 }
 #endif

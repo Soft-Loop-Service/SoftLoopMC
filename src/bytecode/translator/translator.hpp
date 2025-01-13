@@ -11,7 +11,7 @@ namespace Bytecode
     namespace Translator
     {
         using namespace Syntactic;
-        void translator(vSyntacticTree &, string);
+        void translator(vSyntacticTree &, string, vstring);
     }
 }
 

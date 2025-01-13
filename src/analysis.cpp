@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 
     loadText(source_code, argv[1], source_code_size);
     string source_code_file_name = argv[1];
-
-    LexicalAnalysis::vLexicalToken token_string_vector = LexicalAnalysis::lexSyntax(source_code);
+    vstring token_class_type = {};
+    LexicalAnalysis::vLexicalToken token_string_vector = LexicalAnalysis::lexSyntax(source_code, token_class_type);
 
     LRTable::LRTableMultilayer LR_table_multilayer;
     inputTable(table_file_name, LR_table_multilayer);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     TransSystem::TransKit trans_kit;
     string bytecode_name = argv[3];
 
-    Bytecode::Translator::translator(ast, bytecode_name);
+    Bytecode::Translator::translator(ast, bytecode_name, token_class_type);
 
     // LanguageIntermediateSystem::Intermediate intermediate_system(scl_expr, trans_kit);
     // LanguageIntermediateSystem::intermediate(scl_expr, intermediate_system);

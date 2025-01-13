@@ -16,7 +16,7 @@ namespace LexicalAnalysis
         return token_string;
     }
     // スキャナ
-    vLexicalToken lexSyntax(char *source_code)
+    vLexicalToken lexSyntax(char *source_code, vstring &token_class_type)
     {
         // source_codeとtokenのポインタを得る
         vLexicalToken lexical_token = {};
@@ -144,8 +144,6 @@ namespace LexicalAnalysis
 
         struct LexicalToken tsd = {DOLLAR, DOLLAR};
         lexical_token.push_back(tsd);
-
-        vector<string> token_class_type = {};
 
         for (int i = lexical_token.size() - 1; i > 0; i--)
         {

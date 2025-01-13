@@ -24,6 +24,6 @@ namespace LexicalAnalysis
     typedef vector<LexicalToken> vLexicalToken;
 
     string getToken(char *source_text, int token_search_len);
-    vLexicalToken lexSyntax(char *source_code);
+    vLexicalToken lexSyntax(char *source_code, vstring &token_class_type);
 };
 #endif

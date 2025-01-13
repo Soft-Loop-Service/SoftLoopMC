@@ -10,13 +10,13 @@ namespace Bytecode
     namespace BytecodeIO
     {
 
-        BytecodeOutput::BytecodeOutput(string file_name)
+        BytecodeOutput::BytecodeOutput(string file_name, vstring tct)
         {
             outputfile = new ofstream(file_name);
             local_stack = {};
             local_stack.emplace_back();
-            function_class_latest_id = 0;
             current_local_stack_index = 0;
+            token_class_type = tct;
         }
         string BytecodeOutput::getHex(opcr opecode)
         {
@@ -26,273 +26,339 @@ namespace Bytecode
         }
         void BytecodeOutput::putHex(opcr opecode)
         {
-            *(local_stack[current_local_stack_index].bytecode) << std::setw(3) << std::setfill('0') << opecode;
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << std::setw(3) << std::setfill('0') << opecode;
             return;
-            // *(local_stack[current_local_stack_index].bytecode) << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(opecode);
+            // *(local_stack[getCurrentLocalStackIndex()].bytecode) << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(opecode);
         }
         void BytecodeOutput::putOpecode(opcr opecode)
         {
             putHex(opecode);
-            *(local_stack[current_local_stack_index].bytecode) << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
         };
 
         void BytecodeOutput::putOpecode(opcr opecode, int arg)
         {
             putHex(opecode);
-            *(local_stack[current_local_stack_index].bytecode) << " ";
-            *(local_stack[current_local_stack_index].bytecode) << arg;
-            *(local_stack[current_local_stack_index].bytecode) << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << arg;
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
         };
         void BytecodeOutput::putOpecode(opcr opecode, string arg)
         {
             putHex(opecode);
-            *(local_stack[current_local_stack_index].bytecode) << " ";
-            *(local_stack[current_local_stack_index].bytecode) << arg;
-            *(local_stack[current_local_stack_index].bytecode) << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << arg;
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
         };
-        void BytecodeOutput::putOpecode(opcr opecode, vint args)
+        void BytecodeOutput::putOpecode(opcr opecode, opcr opecode_d_type)
         {
             putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            putHex(opecode_d_type);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
+        };
+        void BytecodeOutput::putOpecode(opcr opecode, opcr opecode_d_type, int arg)
+        {
+            putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            putHex(opecode_d_type);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << arg;
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
+        };
+        void BytecodeOutput::putOpecode(opcr opecode, opcr opecode_d_type, string arg)
+        {
+            putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            putHex(opecode_d_type);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << arg;
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
+        };
+
+        void BytecodeOutput::putOpecode(opcr opecode, opcr opecode_d_type, vint args)
+        {
+            putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            putHex(opecode_d_type);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
 
             for (int i = 0; i < args.size(); i++)
             {
-                *(local_stack[current_local_stack_index].bytecode) << args[i];
-                *(local_stack[current_local_stack_index].bytecode) << " ";
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << args[i];
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
             }
-            *(local_stack[current_local_stack_index].bytecode) << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
+        };
+        void BytecodeOutput::putOpecode(opcr opecode, opcr opecode_d_type, vstring args)
+        {
+            putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            putHex(opecode_d_type);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+
+            for (int i = 0; i < args.size(); i++)
+            {
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << args[i];
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            }
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
+        };
+
+        void BytecodeOutput::putOpecode(opcr opecode, vint args)
+        {
+            putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+
+            for (int i = 0; i < args.size(); i++)
+            {
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << args[i];
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
+            }
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
         };
         void BytecodeOutput::putOpecode(opcr opecode, vstring args)
         {
             putHex(opecode);
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
 
             for (int i = 0; i < args.size(); i++)
             {
-                *(local_stack[current_local_stack_index].bytecode) << args[i];
-                *(local_stack[current_local_stack_index].bytecode) << " ";
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << args[i];
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << " ";
             }
-            *(local_stack[current_local_stack_index].bytecode) << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
         };
 
-        int BytecodeOutput::newLocalVariable(string name, int type)
+        int BytecodeOutput::newLocalVariable(string name, opcr type)
         {
-            return local_stack[current_local_stack_index].newLocalVariable(name, type);
+
+            int count = 0;
+            for (int i = 0; i < local_stack.size(); i++)
+            {
+                count += local_stack[i].getLocalVariableMap().size();
+            }
+            printf("newLocalVariable ls:%10d ci:%d pci:%d\n", local_stack.size(), getCurrentLocalStackIndex(), count);
+
+            return local_stack[getCurrentLocalStackIndex()].newLocalVariable(name, count, type);
         }
 
         BytecodeOutput::~BytecodeOutput()
         {
+            for (int i = 0; i < local_stack.size(); i++)
+            {
+                printf(" %3d : p:%3d t:%3d | c:", i, local_stack[i].getParent(), local_stack[i].getLocalStackType());
+
+                for (int j = 0; j < local_stack[i].getChidren().size(); j++)
+                {
+                    printf("%3d ", local_stack[i].getChidren()[j]);
+                }
+
+                std::map<std::string, LocalVariable> local_variable_map = local_stack[i].getLocalVariableMap();
+
+                printf(" | v:%d ", local_variable_map.size());
+                for (const auto &pair : local_variable_map)
+                {
+                    printf("n:%s(%s) t:%d i:%d ,", pair.first.c_str(), pair.second.name.c_str(), pair.second.type, pair.second.index); // pair.first がキー
+                }
+
+                printf("\n");
+            }
+
             outputfile->close();
         }
         void BytecodeOutput::switchClass()
         {
-            function_class_latest_id++;
-            newLocalStack(lacal_stack_type_object);
+            newLocalStack(local_stack_type_object);
 
-            *(local_stack[current_local_stack_index].bytecode) << "class " << current_local_stack_index << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# class " << getCurrentLocalStackIndex() << "\n";
         }
 
         void BytecodeOutput::returnClass()
         {
-            vint has = local_stack[current_local_stack_index].getHasFunctionList();
-            *(local_stack[current_local_stack_index].bytecode) << "     has_function ";
+            vint has = local_stack[getCurrentLocalStackIndex()].getChidren();
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "#     has_function ";
             for (int i = 0; i < has.size(); i++)
             {
-                *(local_stack[current_local_stack_index].bytecode) << has[i] << "";
+                *(local_stack[getCurrentLocalStackIndex()].bytecode) << has[i] << " ";
             }
-            *(local_stack[current_local_stack_index].bytecode) << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "\n";
 
-            *(local_stack[current_local_stack_index].bytecode) << "end class " << current_local_stack_index << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end class " << getCurrentLocalStackIndex() << "\n";
             processedStackTop();
         }
 
         void BytecodeOutput::switchFunction()
         {
-            function_class_latest_id++;
-            newLocalStack(lacal_stack_type_function);
+            newLocalStack(local_stack_type_function);
 
-            *(local_stack[current_local_stack_index].bytecode) << "function " << current_local_stack_index << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# function " << getCurrentLocalStackIndex() << "\n";
         }
 
         void BytecodeOutput::returnFunction()
         {
-            *(local_stack[current_local_stack_index].bytecode) << "end function " << current_local_stack_index << "\n";
+            *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end function " << getCurrentLocalStackIndex() << "\n";
             processedStackTop();
-            registryFunctionToClass(function_class_latest_id);
         }
 
-        void BytecodeOutput::registryFunctionToClass(int function_id)
+        void BytecodeOutput::newLocalStack(opcr s_type)
         {
-            for (int i = local_stack.size() - 1; i >= 0; i--)
-            {
-                if (local_stack[i].getLocalStackType() == lacal_stack_type_object)
-                {
-                    local_stack[i].pushHasFunctionList(function_id);
-                    return;
-                }
-            }
-        }
+            int parent = getCurrentLocalStackIndex();
+            local_stack.emplace_back(s_type, parent);
 
-        void BytecodeOutput::newLocalStack(int s_type)
-        {
-            printf("newLocalStack %10d\n", local_stack.size());
-            local_stack.emplace_back(s_type);
-            printf("newLocalStack %10d\n", local_stack.size());
-            current_local_stack_index = getProcessingStackTop();
+            int new_index = local_stack.size() - 1;
+            printf("newLocalStack p:%10d cc:%10d -> nc:%10d \n", parent, getCurrentLocalStackIndex(), new_index);
+
+            setCurrentLocalStackIndex(new_index);
+            local_stack[parent].putChild(new_index);
         }
         void BytecodeOutput::newLocalStack()
         {
-            printf("newLocalStack %10d\n", local_stack.size());
             local_stack.emplace_back();
-            printf("newLocalStack %10d\n", local_stack.size());
-            current_local_stack_index = getProcessingStackTop();
+            int new_index = local_stack.size() - 1;
+
+            printf("newLocalStack %10d -> %10d \n", getCurrentLocalStackIndex(), new_index);
+            setCurrentLocalStackIndex(new_index);
         }
 
         void BytecodeOutput::processedStackTop()
         {
-            if (!local_stack[current_local_stack_index].getIsProcessed())
-            {
-                return;
-            }
-
-            printf("processedStackTop %10d\n", local_stack.size());
-
-            local_stack[current_local_stack_index].setIsProcessed(false);
+            printf("processedStackTop c:%10d p:%10d\n", getCurrentLocalStackIndex(), local_stack[getCurrentLocalStackIndex()].getParent());
 
             *outputfile << "\n";
-            *outputfile << local_stack[current_local_stack_index].bytecode->str();
+            *outputfile << local_stack[getCurrentLocalStackIndex()].bytecode->str();
             *outputfile << "\n";
-            local_stack[current_local_stack_index].bytecode->clear();
-            current_local_stack_index = getProcessingStackTop();
-        }
+            local_stack[getCurrentLocalStackIndex()].bytecode->clear();
 
-        int BytecodeOutput::getProcessingStackTop()
-        {
-            for (int i = local_stack.size() - 1; i >= 0; i--)
+            int parent = local_stack[getCurrentLocalStackIndex()].getParent();
+
+            if (parent >= 0)
             {
-                if (local_stack[i].getIsProcessed())
-                {
-                    return i;
-                }
+                setCurrentLocalStackIndex(parent);
             }
-            return 0;
         }
 
         bool BytecodeOutput::isFindLocalVariable(string name)
         {
-            for (int i = local_stack.size() - 1; i >= 0; i--)
-            {
-                if (local_stack[i].getIsProcessed())
+            int search = getCurrentLocalStackIndex();
+            while (search != -1)
+            { // mapに存在するか
+                if (local_stack[search].isFindLocalVariable(name))
                 {
-                    // mapに存在するか
-                    if (local_stack[i].isFindLocalVariable(name))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+                search = local_stack[search].getParent();
             }
-
             return false;
         }
 
         LocalVariable BytecodeOutput::findLocalVariable(string name)
         {
-            for (int i = local_stack.size() - 1; i >= 0; i--)
-            {
-                if (local_stack[i].getIsProcessed())
+            int search = getCurrentLocalStackIndex();
+            while (search != -1)
+            { // mapに存在するか
+                if (local_stack[search].isFindLocalVariable(name))
                 {
-                    // mapに存在するか
-                    if (local_stack[i].isFindLocalVariable(name))
-                    {
-                        return local_stack[i].getLocalVariable(name);
-                    }
+                    return local_stack[search].getLocalVariable(name);
                 }
+                search = local_stack[search].getParent();
             }
-
             return LocalVariable("underfind", -1, 0);
         }
 
-        bool BytecodeOutput::isFindLocalVariable(string name, int type)
+        bool BytecodeOutput::isFindLocalVariable(string name, opcr type)
         {
-            for (int i = local_stack.size() - 1; i >= 0; i--)
-            {
-                if (local_stack[i].getIsProcessed())
+            int search = getCurrentLocalStackIndex();
+            while (search != -1)
+            { // mapに存在するか
+                if (local_stack[search].isFindLocalVariable(name, type))
                 {
-                    // mapに存在するか
-                    if (local_stack[i].isFindLocalVariable(name, type))
-                    {
-                        return true;
-                    }
+                    printf("isFindLocalVariable | find:true %d %s %d\n", search, name.c_str(), type);
+                    return true;
                 }
+                search = local_stack[search].getParent();
             }
-
+            printf("isFindLocalVariable | find:false %d %s %d\n", search, name.c_str(), type);
             return false;
         }
 
-        LocalVariable BytecodeOutput::findLocalVariable(string name, int type)
+        LocalVariable BytecodeOutput::findLocalVariable(string name, opcr type)
         {
-            for (int i = local_stack.size() - 1; i >= 0; i--)
-            {
-                if (local_stack[i].getIsProcessed())
+            int search = getCurrentLocalStackIndex();
+            while (search != -1)
+            { // mapに存在するか
+                if (local_stack[search].isFindLocalVariable(name, type))
                 {
-                    // mapに存在するか
-                    if (local_stack[i].isFindLocalVariable(name, type))
-                    {
-                        return local_stack[i].getLocalVariable(name);
-                    }
+                    printf("FindLocalVariable | find:true %d %s %d\n", search, name.c_str(), type);
+                    return local_stack[search].getLocalVariable(name);
                 }
+                search = local_stack[search].getParent();
             }
-
+            printf("FindLocalVariable | find:false %d %s %d\n", search, name.c_str(), type);
             return LocalVariable("underfind", -1, 0);
+        }
+
+        int BytecodeOutput::getCurrentLocalStackIndex()
+        {
+            return current_local_stack_index;
+        }
+
+        void BytecodeOutput::setCurrentLocalStackIndex(int index)
+        {
+            printf("setCurrentLocalStackIndex %10d -> %10d\n", current_local_stack_index, index);
+            current_local_stack_index = index;
         }
 
         LocalStack::LocalStack()
         {
-            is_prossesing = true;
+            printf("LocalStack::LocalStack \n");
+
             local_variable_map = {};
+            children = {};
             bytecode = new std::ostringstream();
-            lacal_stack_type = lacal_stack_type_object;
+            local_stack_type = local_stack_type_object;
+            parent = -1;
         }
-        LocalStack::LocalStack(int s_type)
+        LocalStack::LocalStack(int s_type, int p)
         {
-            is_prossesing = true;
+            printf("LocalStack::LocalStack %d %d\n", s_type, p);
+
             local_variable_map = {};
+            children = {};
             bytecode = new std::ostringstream();
-            lacal_stack_type = s_type;
+            local_stack_type = s_type;
+            parent = p;
         }
 
         LocalStack::~LocalStack()
         {
         }
 
-        void LocalStack::pushHasFunctionList(int index)
+        std::map<std::string, LocalVariable> LocalStack::getLocalVariableMap()
         {
-            has_function_list.push_back(index);
+            return local_variable_map;
         }
 
         int LocalStack::getLocalStackType()
         {
-            return lacal_stack_type;
-        }
-        void LocalStack::setIsProcessed(int flag)
-        {
-            is_prossesing = flag;
+            return local_stack_type;
         }
 
-        bool LocalStack::getIsProcessed()
+        int LocalStack::getParent()
         {
-            return is_prossesing;
+            return parent;
         }
 
-        vint LocalStack::getHasFunctionList()
+        vint LocalStack::getChidren()
         {
-            return has_function_list;
+            return children;
         }
 
-        int LocalStack::newLocalVariable(string name, int type)
+        int LocalStack::newLocalVariable(string name, int index, opcr type)
         {
-            LocalVariable lv = LocalVariable(name, local_variable_map.size(), type);
+            LocalVariable lv = LocalVariable(name, index, type);
             local_variable_map[name] = lv;
-            // ここでは2行前から+1されているので、注意
-            return local_variable_map.size();
+            return index;
         }
 
         bool LocalStack::isFindLocalVariable(string name)
@@ -306,7 +372,7 @@ namespace Bytecode
             return isFindLocalVariable(name, type_int);
         }
 
-        bool LocalStack::isFindLocalVariable(string name, int type)
+        bool LocalStack::isFindLocalVariable(string name, opcr type)
         {
             auto iterator = local_variable_map.find(name);
             if (local_variable_map.find(name) == local_variable_map.end())
@@ -323,6 +389,10 @@ namespace Bytecode
             return local_variable_map[name];
         }
 
-    }
+        void LocalStack::putChild(int index)
+        {
+            children.push_back(index);
+        }
 
+    }
 }
