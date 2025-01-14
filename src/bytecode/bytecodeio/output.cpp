@@ -205,6 +205,10 @@ namespace Bytecode
         {
             return "af_" + std::to_string(anonymous_function_count++);
         }
+        int BytecodeOutput::getOpecodeLabelUniqueId()
+        {
+            return opcr_label_unique_id++;
+        }
 
         void BytecodeOutput::newLocalStack(opcr s_type, int directly_index)
         {

@@ -90,11 +90,16 @@ namespace Bytecode
         // 第3引数はローカル変数のインデックス
         const opcr s_load = 40;
 
+        const opcr s_jump = 50;        // 第2引数はラベルID
+        const opcr s_label_point = 51; // 第二引数はラベルID
+
         const opcr c_add = 100;
         const opcr c_subtraction = 101;
         const opcr c_multiplication = 102;
         const opcr c_division = 103;
 
+        // 比較
+        // 第二引数はtrue label ID 第三引数はfalse label ID 第三引数はなくてもかまわない
         const opcr s_if_acmpeq = 111; //== (オブジェクト参照)
         const opcr s_if_acmpne = 112; //!= (オブジェクト参照)
         const opcr s_if_icmpeq = 113; // ==
@@ -107,6 +112,8 @@ namespace Bytecode
         const opcr head_end_function = 241;
         const opcr head_start_class = 242;
         const opcr head_end_class = 242;
+
+        // const opcr label_end = 244;   // 第二引数はラベルID
         /*
         1. **if_acmpeq**: スタック上の2つのオブジェクト参照を比較し、等しい場合に分岐します。
         2. **if_acmpne**: スタック上の2つのオブジェクト参照を比較し、等しくない場合に分岐します。

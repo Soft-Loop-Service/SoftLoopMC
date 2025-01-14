@@ -122,6 +122,12 @@ namespace Syntactic
         deleteChild(tree, delete_child_node);
     }
 
+    /// @brief 現在位置の要素を削除し(中間)、子要素(下位)を現在位置(中間)に移動させる。親要素(上位)の子要素(中間)を変更する
+    /// @param tree
+    /// @param parent_node_index =親要素
+    /// @param delete_current_node 消したい要素（現在位置）
+    /// @param flow_child_node 現在位置に移動する子要素
+    /// @return
     bool shortParentChildFlow(vSyntacticTree &tree, int parent_node_index, int delete_current_node, int flow_child_node)
     {
         for (int i = 0; i < tree[parent_node_index].children.size(); i++)

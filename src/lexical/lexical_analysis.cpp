@@ -72,7 +72,7 @@ namespace LexicalAnalysis
             else if (isAlphabetOrNumber(source_code[i_s]))
             {
                 source_code_column++;
-                while (isAlphabetOrNumber(source_code[i_s + token_search_len]))
+                while (isAlphabetOrNumber(source_code[i_s + token_search_len]) || (token_search_len > 0 && &source_code[i_s + token_search_len] == "_"))
                 {
                     token_search_len++;
                 }

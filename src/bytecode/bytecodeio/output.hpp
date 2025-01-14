@@ -72,6 +72,7 @@ namespace Bytecode
             int current_local_stack_index;
 
             int anonymous_function_count = 0;
+            int opcr_label_unique_id = 0;
 
         public:
             vstring token_class_type;
@@ -84,6 +85,7 @@ namespace Bytecode
             int getCurrentLocalStackIndex();
 
             string getAnonymousFunctionName();
+            int getOpecodeLabelUniqueId();
 
             void putHex(opcr opecode);
             string getHex(opcr opecode);

@@ -16,7 +16,8 @@
 
 namespace Syntactic
 {
-
+    std::unordered_set<string> ast_keep_list = {"<function_message_passing>"};
+    std::unordered_set<string> ast_keep_list_operator = {"<if_while>"};
     void cutParentheses(vSyntacticTree &tree, int parent_node_index, int current_node_index)
     {
         printf(" cutParentheses : %d\n", current_node_index);
@@ -35,8 +36,6 @@ namespace Syntactic
             cutParentheses(tree, current_node_index, c_index);
         }
         deleteNegativeValueChildren(tree, current_node_index);
-
-        std::unordered_set<string> ast_keep_list = {"<function_message_passing>"};
 
         if (parent_node_index >= 0)
         {
@@ -58,7 +57,7 @@ namespace Syntactic
         }
         printf(" pumpOperator : %d\n", current_node_index);
 
-        if (parent_node_index >= 0)
+        if (parent_node_index >= 0 && tree[current_node_index].token_label == is_id_NonterminalSymbol && ast_keep_list_operator.find(tree[current_node_index].token) == ast_keep_list_operator.end())
         {
             if (tree[current_node_index].children.size() >= 3)
             {

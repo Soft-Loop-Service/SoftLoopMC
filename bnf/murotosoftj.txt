@@ -3,7 +3,10 @@
 <E> ::= <value_definition> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> ";" | <DEFINITION> ";" | <return> ";"
 
 <left> ::= <expression> | <value_definition>
-<right> ::= <comparison_equal> | <json> | <new_class> | <function> | <HTML>
+<right> ::= <logic_or> | <json> | <new_class> | <function> | <HTML>
+
+<logic_or> ::= <logic_or> "||" <logic_and> | <logic_and>
+<logic_and> ::= <logic_and> "&&" <comparison_equal> | <comparison_equal>
 
 <comparison_equal> ::= <comparison_equal> "==" <comparison> | <comparison_equal> "!=" <comparison> | <comparison>
 <comparison> ::= <comparison> "<" <expr> | <comparison> "<=" <expr> | <comparison> ">" <expr> | <comparison> ">=" <expr> | <expr>
@@ -27,7 +30,7 @@
 
 <ifexpr> ::= <if_while> | <if_while> <else>
 <if_while> ::= "if" "(" <right> ")" <block> | "while" "(" <right> ")" <block>
-<else> ::= "else" "if" "(" <right> ")" <block> <else> | "else" <block> 
+<else> ::= "else" "if" "(" <right> ")" <block> <else> | "else" <block> |
 
 <function> ::= "(" <argument> ")" "=>" <block>
 

@@ -211,7 +211,7 @@ inline bool isAssignExpr(string ts)
 inline bool isExpr(string ts)
 {
 
-    if (ts == "<=" || ts == ">=" || ts == "==" || ts == "!=")
+    if (ts == "<=" || ts == ">=" || ts == "==" || ts == "!=" || ts == "||" || ts == "&&")
     {
         return true;
     }

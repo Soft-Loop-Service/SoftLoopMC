@@ -10,9 +10,31 @@ namespace Bytecode
     {
         using namespace BytecodeIO;
 
+        void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index);
+
         bool isFloat(string token)
         {
             return (token.find(".") != string::npos);
+        }
+
+        int getChildrenNodeIndex(vSyntacticTree &tree, int request_node_index, int request_children_index)
+        {
+            if (request_node_index < 0 || request_node_index >= tree.size())
+            {
+                // 例外スロー
+                printf("error : %d is out of range (tree)\n", request_node_index);
+                exit(1);
+            }
+            SyntacticTreeNode current_node = tree[request_node_index];
+
+            if (request_children_index < 0 || request_children_index >= current_node.children.size())
+            {
+                // 例外スロー
+                printf("error : %d is out of range (children)\n", request_children_index);
+                exit(1);
+            }
+            int i = current_node.children[request_children_index];
+            return i;
         }
 
         SyntacticTreeNode getChildrenNode(vSyntacticTree &tree, int request_node_index, int request_children_index)
@@ -141,6 +163,144 @@ namespace Bytecode
                        "left after", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
                 recursionLeftAfter(tree, bo, current_node_index, current_node.children[i]);
                 printf("Translator RecursionTree %15s : %5d | Return \n", "left after", current_node_index);
+            }
+        }
+
+        void recursionLogicalOperators(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index, int destination_label)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.token_label == is_id_TerminalSymbol)
+            {
+                for (int i = 0; i < current_node.children.size(); i++)
+                {
+                    printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
+                           "operators", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
+                    recursionTree(tree, bo, current_node_index, current_node.children[i]);
+                    printf("Translator RecursionTree %15s : %5d | Return \n", "operators", current_node_index);
+                }
+
+                if (current_node.token == "==")
+                {
+                    bo->putOpecode(Opecode::s_if_icmpeq, destination_label);
+                }
+                if (current_node.token == ">=")
+                {
+                    bo->putOpecode(Opecode::s_if_icmpge, destination_label);
+                }
+                if (current_node.token == "<=")
+                {
+                    bo->putOpecode(Opecode::s_if_icmple, destination_label);
+                }
+            }
+        }
+
+        void recursionIfWhileAdvance(vSyntacticTree &tree, BytecodeOutput *bo, vint &label_list, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.token == "<ifexpr>") // このnodeが存在するということは、else else if が存在する
+            {
+                // if/while文
+                recursionIfWhileAdvance(tree, bo, label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 0));
+
+                // else if/else文
+                recursionIfWhileAdvance(tree, bo, label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
+            }
+
+            else if (current_node.token == "<if_while>")
+            {
+                int current_label = bo->getOpecodeLabelUniqueId();
+                label_list.push_back(current_label);
+            }
+            else if (current_node.token == "<else>")
+            {
+                int current_label = bo->getOpecodeLabelUniqueId();
+                label_list.push_back(current_label);
+
+                if (current_node.children.size() == 2) // else block
+                {
+                }
+                else if (current_node.children.size() == 4) // else if 評価式 block
+                {
+                }
+                else if (current_node.children.size() == 5) // else if 評価式 block else
+                {
+                    recursionIfWhileAdvance(tree, bo, label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 4));
+                }
+            }
+        }
+
+        // if while文制御
+        void recursionIfWhile(vSyntacticTree &tree, BytecodeOutput *bo, vint &reverse_label_list, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.token == "<ifexpr>") // このnodeが存在するということは、else else if が存在する
+            {
+                // if/while文
+                recursionIfWhile(tree, bo, reverse_label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 0));
+
+                // else if/else文
+                recursionIfWhile(tree, bo, reverse_label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
+
+                bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+            }
+
+            else if (current_node.token == "<if_while>")
+            {
+                SyntacticTreeNode left = getChildrenNode(tree, current_node_index, 0);
+                int left_index = getChildrenNodeIndex(tree, current_node_index, 0);
+                int center_index = getChildrenNodeIndex(tree, current_node_index, 1);
+                int right_index = getChildrenNodeIndex(tree, current_node_index, 2);
+
+                printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
+                       "if_while", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), left_index, left.token.c_str());
+
+                if (left.token == "if")
+                {
+                    recursionLogicalOperators(tree, bo, current_node_index, center_index, reverse_label_list[1]);
+                    recursionTree(tree, bo, current_node_index, right_index);
+                    bo->putOpecode(Opecode::s_jump, reverse_label_list.back());
+                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                }
+                else if (left.token == "while")
+                {
+                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[0]);
+                    recursionLogicalOperators(tree, bo, current_node_index, center_index, reverse_label_list[1]);
+                    recursionTree(tree, bo, current_node_index, right_index);
+                    bo->putOpecode(Opecode::s_jump, reverse_label_list[0]);
+                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                }
+
+                printf("Translator RecursionTree %15s : %5d | Return \n", "if_while", current_node_index);
+
+                reverse_label_list.erase(reverse_label_list.begin());
+            }
+            else if (current_node.token == "<else>")
+            {
+                if (current_node.children.size() == 2) // else block
+                {
+                    recursionTree(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
+                    reverse_label_list.erase(reverse_label_list.begin());
+                }
+                else if (current_node.children.size() == 4) // else if 評価式 block
+                {
+                    recursionLogicalOperators(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2), reverse_label_list[1]);
+                    recursionTree(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 3));
+                    bo->putOpecode(Opecode::s_jump, reverse_label_list.back());
+                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                    reverse_label_list.erase(reverse_label_list.begin());
+                }
+                else if (current_node.children.size() == 5) // else if 評価式 block else
+                {
+                    recursionLogicalOperators(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2), reverse_label_list[1]);
+                    recursionTree(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 3));
+                    bo->putOpecode(Opecode::s_jump, reverse_label_list.back());
+                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                    reverse_label_list.erase(reverse_label_list.begin());
+                    recursionIfWhile(tree, bo, reverse_label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 4));
+                }
             }
         }
 
@@ -321,8 +481,18 @@ namespace Bytecode
                     return;
                 }
 
-                else if (current_node.token == "<if_while>")
+                else if (current_node.token == "<ifexpr>" || current_node.token == "<if_while>")
                 {
+
+                    printf("ifexpr/if_while AST : %s\n", current_node.token.c_str());
+
+                    vint label_list = {};
+                    recursionIfWhileAdvance(tree, bo, label_list, parent_node_index, current_node_index);
+                    int current_label = bo->getOpecodeLabelUniqueId();
+                    label_list.push_back(current_label);
+                    // std::reverse(label_list.begin(), label_list.end());
+                    recursionIfWhile(tree, bo, label_list, parent_node_index, current_node_index);
+                    return;
                 }
             }
             if (current_node.token_label == is_id_TerminalSymbol)
@@ -383,14 +553,6 @@ namespace Bytecode
                     bo->putOpecode(Opecode::s_load, lv.type, lv.index);
                 }
 
-                if (current_node.token == "==")
-                {
-                    bo->putOpecode(Opecode::s_if_icmpeq);
-                }
-                if (current_node.token == ">=")
-                {
-                    bo->putOpecode(Opecode::s_if_icmpge);
-                }
                 if (current_node.token == "+")
                 {
                     bo->putOpecode(Opecode::c_add);
