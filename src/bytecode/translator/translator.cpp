@@ -15,6 +15,40 @@ namespace Bytecode
             return (token.find(".") != string::npos);
         }
 
+        SyntacticTreeNode getChildrenNode(vSyntacticTree &tree, int request_node_index, int request_children_index)
+        {
+            if (request_node_index < 0 || request_node_index >= tree.size())
+            {
+                // 例外スロー
+                printf("error : %d is out of range (tree)\n", request_node_index);
+                exit(1);
+            }
+            SyntacticTreeNode current_node = tree[request_node_index];
+
+            if (request_children_index < 0 || request_children_index >= current_node.children.size())
+            {
+                // 例外スロー
+                printf("error : %d is out of range (children)\n", request_children_index);
+                exit(1);
+            }
+
+            SyntacticTreeNode c = tree[current_node.children[request_children_index]];
+            return c;
+        }
+
+        SyntacticTreeNode getNode(vSyntacticTree &tree, int request_node_index)
+        {
+            if (request_node_index < 0 || request_node_index >= tree.size())
+            {
+                // 例外スロー
+                printf("error : %d is out of range\n", request_node_index);
+                exit(1);
+            }
+
+            SyntacticTreeNode current_node = tree[request_node_index];
+            return current_node;
+        }
+
         int definitionValue(BytecodeOutput *bo, string name, string type)
         {
             int index = bo->newLocalVariable(name, Opecode::resolvOpecrType(type, bo->token_class_type));
@@ -37,23 +71,23 @@ namespace Bytecode
         }
         int definitionValue(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
-            SyntacticTreeNode current_node = tree[current_node_index];
-            string type = tree[current_node.children[0]].token;
-            string name = tree[current_node.children[1]].token;
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+            string type = getChildrenNode(tree, current_node_index, 0).token;
+            string name = getChildrenNode(tree, current_node_index, 1).token;
             printf("definitionValue %s %s\n", type.c_str(), name.c_str());
             return definitionValue(bo, name, type);
         }
 
         void recursionLeftBefore(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
-            SyntacticTreeNode current_node = tree[current_node_index];
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
             if (current_node.token_label == is_id_NonterminalSymbol)
             {
                 if (current_node.token == "<value_definition>")
                 {
-                    string type = tree[current_node.children[0]].token;
-                    string name = tree[current_node.children[1]].token;
+                    string type = getChildrenNode(tree, current_node_index, 0).token;
+                    string name = getChildrenNode(tree, current_node_index, 1).token;
                     bo->newLocalVariable(name, Opecode::resolvOpecrType(type, bo->token_class_type));
                     return;
                 }
@@ -68,14 +102,14 @@ namespace Bytecode
         }
         void recursionLeftAfter(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
-            SyntacticTreeNode current_node = tree[current_node_index];
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
             if (current_node.token_label == is_id_NonterminalSymbol)
             {
                 if (current_node.token == "<value_definition>")
                 {
-                    string type = tree[current_node.children[0]].token;
-                    string name = tree[current_node.children[1]].token;
+                    string type = getChildrenNode(tree, current_node_index, 0).token;
+                    string name = getChildrenNode(tree, current_node_index, 1).token;
                     LocalVariable lv = bo->findLocalVariable(name);
                     if (lv.name == "underfind")
                     {
@@ -113,7 +147,7 @@ namespace Bytecode
         // argument制御
         void recursionArgument(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
-            SyntacticTreeNode current_node = tree[current_node_index];
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
             if (current_node.token_label == is_id_NonterminalSymbol)
             {
@@ -137,7 +171,7 @@ namespace Bytecode
 
         void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         {
-            SyntacticTreeNode current_node = tree[current_node_index];
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
             printf("* * * recursionTree %d \n", current_node_index);
 
@@ -174,7 +208,7 @@ namespace Bytecode
                 {
 
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
-                           "return", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[1], tree[current_node.children[1]].token.c_str());
+                           "return", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[1], getChildrenNode(tree, current_node_index, 1).token.c_str());
 
                     if (current_node.children.size() == 2)
                     {
@@ -202,10 +236,10 @@ namespace Bytecode
                         recursionTree(tree, bo, current_node_index, current_node.children[1]);
                     }
 
-                    LocalVariable lv = bo->findLocalVariable(tree[current_node.children[0]].token, Opecode::d_function);
+                    LocalVariable lv = bo->findLocalVariable(getChildrenNode(tree, current_node_index, 0).token, Opecode::d_function);
                     if (lv.name == "underfind")
                     {
-                        printf("error : function %s is underfind\n", tree[current_node.children[0]].token.c_str());
+                        printf("error : function %s is underfind\n", getChildrenNode(tree, current_node_index, 0).token.c_str());
                         return;
                     }
                     bo->putOpecode(Opecode::s_load, lv.type, lv.index);
@@ -228,14 +262,16 @@ namespace Bytecode
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
                            "DEFINITION", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[2], tree[current_node.children[2]].token.c_str());
 
-                    string definition_type = tree[current_node.children[0]].token;
-                    string definition_name = tree[current_node.children[1]].token;
+                    string definition_type = getChildrenNode(tree, current_node_index, 0).token;
+                    string definition_name = getChildrenNode(tree, current_node_index, 1).token;
 
                     int directly_index = -1;
 
                     if (definition_type == "class" || definition_type == "component")
                     {
-                        directly_index = definitionValue(bo, definition_name, definition_name);
+                        opcr type = Opecode::resolvOpecrType(definition_name, bo->token_class_type);
+                        directly_index = bo->newLocalVariable(definition_name, type);
+                        bo->putOpecode(Opecode::push, type, directly_index);
                     }
 
                     bo->switchClass(directly_index);
@@ -261,8 +297,8 @@ namespace Bytecode
                     if (current_node.children.size() == 2)
                     {
                         printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
-                               "new_class A", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[1], tree[current_node.children[1]].token.c_str());
-                        string type = tree[current_node.children[1]].token;
+                               "new_class A", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[1], getChildrenNode(tree, current_node_index, 1).token.c_str());
+                        string type = getChildrenNode(tree, current_node_index, 1).token;
                         LocalVariable lv = bo->findLocalVariable(type, Opecode::resolvOpecrType(type, bo->token_class_type));
                         bo->putOpecode(Opecode::s_instance, lv.index);
                         printf("Translator RecursionTree %15s : %5d | Return \n", "new_class A", current_node_index);
@@ -275,7 +311,7 @@ namespace Bytecode
                                "new_class A", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[2], tree[current_node.children[2]].token.c_str());
 
                         recursionTree(tree, bo, current_node_index, current_node.children[2]);
-                        string type = tree[current_node.children[1]].token;
+                        string type = getChildrenNode(tree, current_node_index, 1).token;
                         LocalVariable lv = bo->findLocalVariable(type, Opecode::resolvOpecrType(type, bo->token_class_type));
                         bo->putOpecode(Opecode::s_instance, lv.index);
                         printf("Translator RecursionTree %15s : %5d | Return \n", "new_class B", current_node_index);
@@ -283,6 +319,10 @@ namespace Bytecode
                         return;
                     }
                     return;
+                }
+
+                else if (current_node.token == "<if_while>")
+                {
                 }
             }
             if (current_node.token_label == is_id_TerminalSymbol)
@@ -299,7 +339,7 @@ namespace Bytecode
                         printf("Translator RecursionTree %15s : %5d | Return \n", "= right", current_node_index);
                     }
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
-                           "= left", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[0], tree[current_node.children[0]].token.c_str());
+                           "= left", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[0], getChildrenNode(tree, current_node_index, 0).token.c_str());
 
                     recursionLeftAfter(tree, bo, current_node_index, current_node.children[0]);
                     printf("Translator RecursionTree %15s : %5d | Return \n", "= left", current_node_index);
