@@ -118,6 +118,12 @@ namespace Bytecode
 
             bool isFindLocalVariable(string, opcr);
             LocalVariable findLocalVariable(string, opcr);
+
+            // 対象となるLocalStackを明記したうえで検索
+            bool isFindLocalVariable(string, opcr, int);
+            LocalVariable findLocalVariable(string, opcr, int);
+
+            vector<LocalVariable> findLocalVariableAll(string);
         };
 
     }

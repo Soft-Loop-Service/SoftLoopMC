@@ -1,12 +1,12 @@
-class Hoge {
-    int a = 3;
-    int b = 4;
-    int c = 5;
-
-    function a = () => {
-
-    };
+class Fuga{
+    int inside = 3;
 };
 
+class Hoge {
+    Fuga a = new Fuga();
+    function k = () => {};
+};
 
-Hoge a = new Hoge();
+Hoge p = new Hoge();
+
+p.k() + 100;

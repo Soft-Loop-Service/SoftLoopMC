@@ -86,17 +86,9 @@ namespace Bytecode
         // 第2引数はクラスのインデックス
         const opcr s_instance = 22;
 
-        // 候補を積んで置き、名前解決を依頼する命令
-        // この直前には、オブジェクトをスタックに積んでおく。
-        // このあとにs_invokevirtualを使用すれば、名前解決された関数を呼び出すことができる
-        // s_name_resolve_push 10 20 30 であれば、push 10 / push 20 / push 30のいずれかがされることとなる
-        const opcr s_name_resolve_push = 23;
-
-        // 候補を積んで置き、名前解決を依頼する命令
-        // この直前には、オブジェクトをスタックに積んでおく。
-        // このあとにs_invokevirtualを使用すれば、名前解決されたローカル変数をスタックに積むことができる
-        // s_name_resolve_load 10 20 30 s_load 10 / s_load 20 / s_load 30のいずれかがされることとなる
-        const opcr s_name_resolve_load = 24;
+        // スタックトップにあるスコープをPOPし、その中にある変数を探す。存在する場合はスタックに積む
+        // 第二引数以降は 候補となる   TYPE NAME の繰り替えし
+        const opcr s_inside = 23;
 
         // ローカル変数関連
 
@@ -132,6 +124,8 @@ namespace Bytecode
         const opcr head_end_function = 241;
         const opcr head_start_class = 242;
         const opcr head_end_class = 243;
+
+        const opcr head_value_definition = 244; // 第2引数はlocal_stack index 第3引数は directly_index 第4引数以降変数のインデックス
 
         // const opcr label_end = 244;   // 第二引数はラベルID
         /*

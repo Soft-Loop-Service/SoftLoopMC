@@ -169,9 +169,7 @@ namespace Bytecode
 
         struct MethodChainLiner
         {
-            // 0 : value
-            // 1 : method
-            int type;
+            int type; // 0 : value 1 : method
             int node_index;
         };
 
@@ -369,6 +367,53 @@ namespace Bytecode
                 }
             }
         }
+        void recursionFunctionMessagePassing(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index, vint search)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+            printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s\n",
+                   "function_message_passing(search)", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str());
+
+            if (current_node.children.size() == 0 || current_node.children.size() > 2)
+            {
+                return;
+            }
+
+            if (current_node.children.size() == 2)
+            {
+                recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
+            }
+
+            bo->putOpecode(Opecode::s_inside, search);
+            bo->putOpecode(Opecode::s_invokevirtual);
+            printf("Translator RecursionTree %15s : %5d | Return \n", "function_message_passing(search)", current_node_index);
+        }
+
+        void recursionFunctionMessagePassing(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+            printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s\n",
+                   "function_message_passing", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str());
+
+            if (current_node.children.size() == 0 || current_node.children.size() > 2)
+            {
+                return;
+            }
+
+            if (current_node.children.size() == 2)
+            {
+                recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
+            }
+
+            LocalVariable lv = bo->findLocalVariable(getChildrenNode(tree, current_node_index, 0).token, Opecode::d_function);
+            if (lv.name == "underfind")
+            {
+                printf("error : function %s is underfind\n", getChildrenNode(tree, current_node_index, 0).token.c_str());
+                return;
+            }
+            bo->putOpecode(Opecode::s_load, lv.type, lv.index);
+            bo->putOpecode(Opecode::s_invokevirtual);
+            printf("Translator RecursionTree %15s : %5d | Return \n", "function_message_passing", current_node_index);
+        }
 
         // void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
         // {
@@ -428,29 +473,7 @@ namespace Bytecode
                 }
                 else if (current_node.token == "<function_message_passing>")
                 {
-                    printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s\n",
-                           "function_message_passing", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str());
-
-                    if (current_node.children.size() == 0 || current_node.children.size() > 2)
-                    {
-                        return;
-                    }
-
-                    if (current_node.children.size() == 2)
-                    {
-                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
-                    }
-
-                    LocalVariable lv = bo->findLocalVariable(getChildrenNode(tree, current_node_index, 0).token, Opecode::d_function);
-                    if (lv.name == "underfind")
-                    {
-                        printf("error : function %s is underfind\n", getChildrenNode(tree, current_node_index, 0).token.c_str());
-                        return;
-                    }
-                    bo->putOpecode(Opecode::s_load, lv.type, lv.index);
-                    bo->putOpecode(Opecode::s_invokevirtual);
-                    printf("Translator RecursionTree %15s : %5d | Return \n", "function_message_passing", current_node_index);
-
+                    recursionFunctionMessagePassing(tree, bo, jump_map, parent_node_index, current_node_index);
                     return;
                 }
                 else if (current_node.token == "<value_definition>")
@@ -545,21 +568,51 @@ namespace Bytecode
                     vector<MethodChainLiner> mcl = {};
                     recursionExpressionToLinear(tree, bo, mcl, parent_node_index, current_node_index);
 
+                    int confirmed = true;
+
                     for (int i = 0; i < mcl.size(); i++)
                     {
                         MethodChainLiner m = mcl[i];
                         printf("mcl %d %d\n", m.type, m.node_index);
 
-                        if (i == 0) // これは対象オブジェクト
+                        if (m.type == 0 && i == 0)
                         {
+                            LocalVariable lv = bo->findLocalVariable(getNode(tree, m.node_index).token);
+                            bo->putOpecode(Opecode::s_load, lv.type, lv.index);
                         }
-
-                        else if (i == 1) // 容易に解析できる限界
+                        else if (m.type == 0)
                         {
+                            vector<LocalVariable> lvs = bo->findLocalVariableAll(getNode(tree, m.node_index).token);
+
+                            vector<int> op_list = {};
+
+                            for (int j = 0; j < lvs.size(); j++)
+                            {
+                                LocalVariable lv = lvs[j];
+                                op_list.push_back(lv.type);
+                                op_list.push_back(lv.index);
+                            }
+
+                            bo->putOpecode(Opecode::s_inside, op_list);
                         }
-
-                        else
+                        else if (m.type == 1 && i == 0)
                         {
+                            recursionFunctionMessagePassing(tree, bo, jump_map, parent_node_index, m.node_index);
+                        }
+                        else if (m.type == 1)
+                        {
+                            vector<LocalVariable> lvs = bo->findLocalVariableAll(getChildrenNode(tree, m.node_index, 0).token);
+
+                            vector<int> op_list = {};
+
+                            for (int j = 0; j < lvs.size(); j++)
+                            {
+                                LocalVariable lv = lvs[j];
+                                op_list.push_back(lv.type);
+                                op_list.push_back(lv.index);
+                            }
+
+                            recursionFunctionMessagePassing(tree, bo, jump_map, parent_node_index, m.node_index, op_list);
                         }
                     }
                     return;

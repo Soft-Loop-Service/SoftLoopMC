@@ -145,6 +145,7 @@ namespace Bytecode
 
         BytecodeOutput::~BytecodeOutput()
         {
+
             printf("\n");
             for (int i = 0; i < local_stack.size(); i++)
             {
@@ -249,6 +250,34 @@ namespace Bytecode
             {
                 setCurrentLocalStackIndex(parent);
             }
+            else
+            {
+                *outputfile << "\n";
+                for (int i = 0; i < local_stack.size(); i++)
+                {
+                    LocalStack ls = local_stack[i];
+
+                    *outputfile << getHex(Opecode::head_value_definition);
+                    *outputfile << " ";
+                    *outputfile << i;
+                    *outputfile << " ";
+                    *outputfile << ls.getLocalStackType();
+                    *outputfile << " ";
+                    *outputfile << ls.getDirectlyIndex();
+
+                    std::map<std::string, LocalVariable> ls_v_map = ls.getLocalVariableMap();
+
+                    for (const auto &pair : ls_v_map)
+                    {
+                        *outputfile << " ";
+                        *outputfile << pair.second.type;
+                        *outputfile << " ";
+                        *outputfile << pair.second.index;
+                    }
+
+                    *outputfile << "\n";
+                }
+            }
         }
 
         bool BytecodeOutput::isFindLocalVariable(string name)
@@ -309,6 +338,33 @@ namespace Bytecode
             }
             printf("FindLocalVariable | find:false %d %s %d\n", search, name.c_str(), type);
             return LocalVariable("underfind", -1, 0);
+        }
+
+        vector<LocalVariable> BytecodeOutput::findLocalVariableAll(string name)
+        {
+            vector<LocalVariable> lvs = {};
+
+            for (int i = 0; i < local_stack.size(); i++)
+            {
+                if (local_stack[i].isFindLocalVariable(name))
+                {
+                    lvs.push_back(local_stack[i].getLocalVariable(name));
+                    printf("findLocalVariableAll | find:true %d %s %d\n", i, name.c_str(), local_stack[i].getLocalVariable(name).type);
+                }
+            }
+
+            printf("findLocalVariableAll | find:false %s\n", name.c_str());
+
+            return lvs;
+        }
+
+        bool BytecodeOutput::isFindLocalVariable(string name, opcr type, int index)
+        {
+            return local_stack[index].isFindLocalVariable(name, type);
+        }
+        LocalVariable BytecodeOutput::findLocalVariable(string name, opcr type, int index)
+        {
+            return local_stack[index].getLocalVariable(name);
         }
 
         int BytecodeOutput::getCurrentLocalStackIndex()
