@@ -111,7 +111,7 @@ namespace Bytecode
         const opcr head_start_function = 240;
         const opcr head_end_function = 241;
         const opcr head_start_class = 242;
-        const opcr head_end_class = 242;
+        const opcr head_end_class = 243;
 
         // const opcr label_end = 244;   // 第二引数はラベルID
         /*

@@ -170,12 +170,14 @@ namespace Bytecode
         void BytecodeOutput::switchClass(int directly_index)
         {
             newLocalStack(local_stack_type_object, directly_index);
-
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# class ci :" << getCurrentLocalStackIndex() << "| di :" << directly_index << "\n";
+            putOpecode(Opecode::head_start_class, directly_index);
         }
 
         void BytecodeOutput::returnClass()
         {
+            putOpecode(Opecode::head_end_class);
+
             vint has = local_stack[getCurrentLocalStackIndex()].getChidren();
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "#     has_function ";
             for (int i = 0; i < has.size(); i++)
@@ -191,12 +193,13 @@ namespace Bytecode
         void BytecodeOutput::switchFunction(int directly_index)
         {
             newLocalStack(local_stack_type_function, directly_index);
-
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# function ci :" << getCurrentLocalStackIndex() << "| di :" << directly_index << "\n";
+            putOpecode(Opecode::head_start_function, directly_index);
         }
 
         void BytecodeOutput::returnFunction()
         {
+            putOpecode(Opecode::head_end_function);
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# end function ci :" << getCurrentLocalStackIndex() << "| di :" << local_stack[getCurrentLocalStackIndex()].getDirectlyIndex() << "\n";
             processedStackTop();
         }
