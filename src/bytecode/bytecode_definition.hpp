@@ -18,6 +18,7 @@ namespace Bytecode
         const opcr d_html_dom = 600;
         const opcr d_function = 700; // 関数
         const opcr d_class = 800;    // クラスやコンポーネントなど、インスタンス化できるもの。
+        const opcr d_boolean = 900;
 
         inline const std::map<std::string, opcr> type_map = {
             {"int", d_int},
@@ -27,7 +28,8 @@ namespace Bytecode
             {"reference", d_reference},
             {"html_dom", d_html_dom},
             {"function", d_function},
-            {"class", d_class}};
+            {"class", d_class},
+            {"boolean", d_boolean}};
 
         inline opcr resolvOpecrType(std::string type, vstring token_class_type)
         {
@@ -66,6 +68,9 @@ namespace Bytecode
 
             return type_map.at(type);
         }
+
+        const opcr bool_false = 0;
+        const opcr bool_true = 1;
 
         // stack関連
         const opcr push = 10; // スタックに数値もしくは文字列を積む 第2引数は型 第3引数は値
@@ -120,6 +125,8 @@ namespace Bytecode
         const opcr s_if_icmpgt = 116; // >
         const opcr s_if_icmple = 117; // <=
         const opcr s_if_icmplt = 118; // <
+        const opcr s_if_true = 120;
+        const opcr s_if_false = 121;
 
         const opcr head_start_function = 240;
         const opcr head_end_function = 241;

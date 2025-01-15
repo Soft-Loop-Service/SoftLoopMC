@@ -204,37 +204,78 @@ namespace Bytecode
 
             if (current_node.token_label == is_id_TerminalSymbol)
             {
-                for (int i = 0; i < current_node.children.size(); i++)
+                if (current_node.token == "&&")
                 {
-                    printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
-                           "operators", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
-                    recursionTree(tree, bo, jump_map, current_node_index, current_node.children[i]);
-                    printf("Translator RecursionTree %15s : %5d | Return \n", "operators", current_node_index);
+                    int label_1 = bo->getOpecodeLabelUniqueId();
+                    int label_2 = bo->getOpecodeLabelUniqueId();
+                    recursionTree(tree, bo, jump_map, current_node_index, current_node.children[0]);
+                    bo->putOpecode(Opecode::s_if_true, label_1);
+                    recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
+                    bo->putOpecode(Opecode::s_if_true, label_1);
+                    bo->putOpecode(Opecode::push, Opecode::d_boolean, Opecode::bool_true);
+                    bo->putOpecode(Opecode::s_jump, label_2);
+                    bo->putOpecode(Opecode::s_label_point, label_1);
+                    bo->putOpecode(Opecode::push, Opecode::d_boolean, Opecode::bool_false);
+                    bo->putOpecode(Opecode::s_label_point, label_2);
+
+                    return;
                 }
 
+                if (current_node.token == "||")
+                {
+                    int label_1 = bo->getOpecodeLabelUniqueId();
+                    int label_2 = bo->getOpecodeLabelUniqueId();
+                    recursionTree(tree, bo, jump_map, current_node_index, current_node.children[0]);
+                    bo->putOpecode(Opecode::s_if_false, label_1);
+                    recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
+                    bo->putOpecode(Opecode::s_if_false, label_1);
+                    bo->putOpecode(Opecode::push, Opecode::d_boolean, Opecode::bool_false);
+                    bo->putOpecode(Opecode::s_jump, label_2);
+                    bo->putOpecode(Opecode::s_label_point, label_1);
+                    bo->putOpecode(Opecode::push, Opecode::d_boolean, Opecode::bool_true);
+                    bo->putOpecode(Opecode::s_label_point, label_2);
+                    return;
+                }
+            }
+
+            for (int i = 0; i < current_node.children.size(); i++)
+            {
+                printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
+                       "operators", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
+                recursionTree(tree, bo, jump_map, current_node_index, current_node.children[i]);
+                printf("Translator RecursionTree %15s : %5d | Return \n", "operators", current_node_index);
+            }
+
+            if (current_node.token_label == is_id_TerminalSymbol)
+            {
                 if (current_node.token == "==")
                 {
                     bo->putOpecode(Opecode::s_if_icmpeq, destination_label);
                 }
-                if (current_node.token == "!=")
+                else if (current_node.token == "!=")
                 {
                     bo->putOpecode(Opecode::s_if_icmpne, destination_label);
                 }
-                if (current_node.token == ">=")
+                else if (current_node.token == ">=")
                 {
                     bo->putOpecode(Opecode::s_if_icmpge, destination_label);
                 }
-                if (current_node.token == "<=")
+                else if (current_node.token == "<=")
                 {
                     bo->putOpecode(Opecode::s_if_icmple, destination_label);
                 }
-                if (current_node.token == ">")
+                else if (current_node.token == ">")
                 {
                     bo->putOpecode(Opecode::s_if_icmpgt, destination_label);
                 }
-                if (current_node.token == "<")
+                else if (current_node.token == "<")
                 {
                     bo->putOpecode(Opecode::s_if_icmplt, destination_label);
+                }
+                else
+                {
+                    recursionTree(tree, bo, jump_map, parent_node_index, current_node_index);
+                    bo->putOpecode(Opecode::s_if_true, destination_label);
                 }
             }
         }
@@ -665,13 +706,6 @@ namespace Bytecode
 
                     return;
                 }
-
-                if (current_node.token == "||")
-                {
-                }
-                if (current_node.token == "&&")
-                {
-                }
             }
             for (int i = 0; i < current_node.children.size(); i++)
             {
@@ -694,9 +728,17 @@ namespace Bytecode
                 {
                     bo->putOpecode(Opecode::push, isFloat(current_node.token) ? Opecode::d_float : Opecode::d_int, current_node.token);
                 }
-                if (current_node.parent_token == "<string>")
+                if (current_node.parent_token == "<text>")
                 {
                     bo->putOpecode(Opecode::push, Opecode::d_int, current_node.token);
+                }
+                if (current_node.parent_token == "<value_name>" && current_node.token == "true")
+                {
+                    bo->putOpecode(Opecode::push, Opecode::d_boolean, 1);
+                }
+                if (current_node.parent_token == "<value_name>" && current_node.token == "false")
+                {
+                    bo->putOpecode(Opecode::push, Opecode::d_boolean, 0);
                 }
                 if (current_node.parent_token == "<value_name>")
                 {

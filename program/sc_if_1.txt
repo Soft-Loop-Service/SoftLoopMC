@@ -1,12 +1,4 @@
 
-    if (1 == 2){
+    if ("hello" || false){
 
-    }
-
-    else if (3 == 4){
-        
-    }
-
-    else {
-        
     };
