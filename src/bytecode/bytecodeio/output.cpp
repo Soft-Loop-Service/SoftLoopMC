@@ -353,8 +353,6 @@ namespace Bytecode
                 }
             }
 
-            printf("findLocalVariableAll | find:false %s\n", name.c_str());
-
             return lvs;
         }
 

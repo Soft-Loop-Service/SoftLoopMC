@@ -573,7 +573,7 @@ namespace Bytecode
                     for (int i = 0; i < mcl.size(); i++)
                     {
                         MethodChainLiner m = mcl[i];
-                        printf("mcl %d %d\n", m.type, m.node_index);
+                        printf("mcl %d : %d %d\n", i, m.type, m.node_index);
 
                         if (m.type == 0 && i == 0)
                         {

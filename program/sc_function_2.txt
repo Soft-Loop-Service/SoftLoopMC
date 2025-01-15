@@ -1,1 +1,13 @@
-<k> <a> <b/> <b/> <c/> </a> <d> </d> </k>;
+function c = () => {
+
+};
+
+function b = () => {
+
+};
+
+function a = () => {
+
+};
+
+a().b().c();

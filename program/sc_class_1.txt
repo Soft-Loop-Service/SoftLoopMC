@@ -9,4 +9,6 @@ class Hoge {
 
 Hoge p = new Hoge();
 
-p.k() + 100;
+p.k();
+p.a.inside;
+
