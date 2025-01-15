@@ -1,6 +1,6 @@
 <S> ::= <EL>
 <EL> ::= <E> *
-<E> ::= <value_definition> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> ";" | <DEFINITION> ";" | <return> ";"
+<E> ::= <value_definition> ";" | <right> ";" | <left> "=" <right> ";" | <ifexpr> ";" | <DEFINITION> ";" | <for> ";" | <return> ";"| <break> ";" | <continue> ";"
 
 <left> ::= <expression> | <value_definition>
 <right> ::= <logic_or> | <json> | <new_class> | <function> | <HTML>
@@ -39,7 +39,11 @@
 
 <argument> ::= <value_definition> "," <argument>  | <value_definition> |
 
+<Efor> ::= <value_name> | <value_definition> "=" <right> | <value_name> "=" <right>
+<for> ::= "for" "(" <Efor> ";" <logic_or> ";" <Efor> ")" <block>
 <return> ::= "return" | "return" <right>
+<break> ::= "break"
+<continue> ::= "continue"
 
 <block> ::= "{" <EL> "}"
 

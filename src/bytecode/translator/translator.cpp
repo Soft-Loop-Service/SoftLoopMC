@@ -9,8 +9,9 @@ namespace Bytecode
     namespace Translator
     {
         using namespace BytecodeIO;
+        typedef map<string, int> JumpMap;
 
-        void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index);
+        void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index);
 
         bool isFloat(string token)
         {
@@ -166,7 +167,7 @@ namespace Bytecode
             }
         }
 
-        void recursionLogicalOperators(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index, int destination_label)
+        void recursionLogicalOperators(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index, int destination_label)
         {
             SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
@@ -176,7 +177,7 @@ namespace Bytecode
                 {
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
                            "operators", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
-                    recursionTree(tree, bo, current_node_index, current_node.children[i]);
+                    recursionTree(tree, bo, jump_map, current_node_index, current_node.children[i]);
                     printf("Translator RecursionTree %15s : %5d | Return \n", "operators", current_node_index);
                 }
 
@@ -232,19 +233,19 @@ namespace Bytecode
         }
 
         // if while文制御
-        void recursionIfWhile(vSyntacticTree &tree, BytecodeOutput *bo, vint &reverse_label_list, int parent_node_index, int current_node_index)
+        void recursionIfWhile(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, vint &label_list, int &current_label_index, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
             if (current_node.token == "<ifexpr>") // このnodeが存在するということは、else else if が存在する
             {
                 // if/while文
-                recursionIfWhile(tree, bo, reverse_label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 0));
+                recursionIfWhile(tree, bo, jump_map, label_list, current_label_index, current_node_index, getChildrenNodeIndex(tree, current_node_index, 0));
 
                 // else if/else文
-                recursionIfWhile(tree, bo, reverse_label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
+                recursionIfWhile(tree, bo, jump_map, label_list, current_label_index, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
 
-                bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                bo->putOpecode(Opecode::s_label_point, label_list[current_label_index + 1]);
             }
 
             else if (current_node.token == "<if_while>")
@@ -259,47 +260,54 @@ namespace Bytecode
 
                 if (left.token == "if")
                 {
-                    recursionLogicalOperators(tree, bo, current_node_index, center_index, reverse_label_list[1]);
-                    recursionTree(tree, bo, current_node_index, right_index);
-                    bo->putOpecode(Opecode::s_jump, reverse_label_list.back());
-                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                    recursionLogicalOperators(tree, bo, jump_map, current_node_index, center_index, label_list[current_label_index + 1]);
+                    recursionTree(tree, bo, jump_map, current_node_index, right_index);
+                    bo->putOpecode(Opecode::s_jump, label_list.back());
+                    bo->putOpecode(Opecode::s_label_point, label_list[current_label_index + 1]);
                 }
                 else if (left.token == "while")
                 {
-                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[0]);
-                    recursionLogicalOperators(tree, bo, current_node_index, center_index, reverse_label_list[1]);
-                    recursionTree(tree, bo, current_node_index, right_index);
-                    bo->putOpecode(Opecode::s_jump, reverse_label_list[0]);
-                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
+                    JumpMap jump_map_cp;
+                    jump_map_cp.insert(jump_map.begin(), jump_map.end());
+
+                    jump_map_cp["continue"] = label_list[0];
+                    jump_map_cp["break"] = label_list.back();
+
+                    bo->putOpecode(Opecode::s_label_point, label_list[current_label_index + 0]);
+                    recursionLogicalOperators(tree, bo, jump_map_cp, current_node_index, center_index, label_list[current_label_index + 1]);
+                    recursionTree(tree, bo, jump_map_cp, current_node_index, right_index);
+                    bo->putOpecode(Opecode::s_jump, label_list[current_label_index + 0]);
+                    bo->putOpecode(Opecode::s_label_point, label_list[current_label_index + 1]);
                 }
 
                 printf("Translator RecursionTree %15s : %5d | Return \n", "if_while", current_node_index);
 
-                reverse_label_list.erase(reverse_label_list.begin());
+                current_label_index++;
             }
             else if (current_node.token == "<else>")
             {
                 if (current_node.children.size() == 2) // else block
                 {
-                    recursionTree(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
-                    reverse_label_list.erase(reverse_label_list.begin());
+                    recursionTree(tree, bo, jump_map, current_node_index, getChildrenNodeIndex(tree, current_node_index, 1));
+                    current_label_index++;
                 }
                 else if (current_node.children.size() == 4) // else if 評価式 block
                 {
-                    recursionLogicalOperators(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2), reverse_label_list[1]);
-                    recursionTree(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 3));
-                    bo->putOpecode(Opecode::s_jump, reverse_label_list.back());
-                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
-                    reverse_label_list.erase(reverse_label_list.begin());
+                    recursionLogicalOperators(tree, bo, jump_map, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2), label_list[current_label_index + 1]);
+                    recursionTree(tree, bo, jump_map, current_node_index, getChildrenNodeIndex(tree, current_node_index, 3));
+                    bo->putOpecode(Opecode::s_jump, label_list.back());
+                    bo->putOpecode(Opecode::s_label_point, label_list[current_label_index + 1]);
+                    current_label_index++;
                 }
                 else if (current_node.children.size() == 5) // else if 評価式 block else
                 {
-                    recursionLogicalOperators(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2), reverse_label_list[1]);
-                    recursionTree(tree, bo, current_node_index, getChildrenNodeIndex(tree, current_node_index, 3));
-                    bo->putOpecode(Opecode::s_jump, reverse_label_list.back());
-                    bo->putOpecode(Opecode::s_label_point, reverse_label_list[1]);
-                    reverse_label_list.erase(reverse_label_list.begin());
-                    recursionIfWhile(tree, bo, reverse_label_list, current_node_index, getChildrenNodeIndex(tree, current_node_index, 4));
+                    recursionLogicalOperators(tree, bo, jump_map, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2), label_list[current_label_index + 1]);
+                    recursionTree(tree, bo, jump_map, current_node_index, getChildrenNodeIndex(tree, current_node_index, 3));
+                    bo->putOpecode(Opecode::s_jump, label_list.back());
+                    bo->putOpecode(Opecode::s_label_point, label_list[current_label_index + 1]);
+                    // label_list.erase(label_list.begin());
+                    current_label_index++;
+                    recursionIfWhile(tree, bo, jump_map, label_list, current_label_index, current_node_index, getChildrenNodeIndex(tree, current_node_index, 4));
                 }
             }
         }
@@ -329,7 +337,11 @@ namespace Bytecode
             }
         }
 
-        void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        // void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        // {
+        //     recursionTree(tree, bo, {}, parent_node_index, current_node_index);
+        // }
+        void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
@@ -351,12 +363,12 @@ namespace Bytecode
                     if (current_node.children.size() == 3)
                     {
                         recursionArgument(tree, bo, current_node_index, current_node.children[0]);
-                        recursionTree(tree, bo, current_node_index, current_node.children[2]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[2]);
                     }
                     // 引数がない場合
                     if (current_node.children.size() == 2)
                     {
-                        recursionTree(tree, bo, current_node_index, current_node.children[1]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
                     }
 
                     bo->returnFunction();
@@ -372,7 +384,7 @@ namespace Bytecode
 
                     if (current_node.children.size() == 2)
                     {
-                        recursionTree(tree, bo, current_node_index, current_node.children[1]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
                     }
                     if (current_node.children.size() == 1)
                     {
@@ -393,7 +405,7 @@ namespace Bytecode
 
                     if (current_node.children.size() == 2)
                     {
-                        recursionTree(tree, bo, current_node_index, current_node.children[1]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
                     }
 
                     LocalVariable lv = bo->findLocalVariable(getChildrenNode(tree, current_node_index, 0).token, Opecode::d_function);
@@ -438,11 +450,11 @@ namespace Bytecode
 
                     if (current_node.children.size() == 3)
                     {
-                        recursionTree(tree, bo, current_node_index, current_node.children[2]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[2]);
                     }
                     if (current_node.children.size() == 4)
                     {
-                        recursionTree(tree, bo, current_node_index, current_node.children[3]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[3]);
                     }
 
                     bo->returnClass();
@@ -470,7 +482,7 @@ namespace Bytecode
                         printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
                                "new_class A", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[2], tree[current_node.children[2]].token.c_str());
 
-                        recursionTree(tree, bo, current_node_index, current_node.children[2]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[2]);
                         string type = getChildrenNode(tree, current_node_index, 1).token;
                         LocalVariable lv = bo->findLocalVariable(type, Opecode::resolvOpecrType(type, bo->token_class_type));
                         bo->putOpecode(Opecode::s_instance, lv.index);
@@ -490,8 +502,9 @@ namespace Bytecode
                     recursionIfWhileAdvance(tree, bo, label_list, parent_node_index, current_node_index);
                     int current_label = bo->getOpecodeLabelUniqueId();
                     label_list.push_back(current_label);
+                    int current_label_index = 0;
                     // std::reverse(label_list.begin(), label_list.end());
-                    recursionIfWhile(tree, bo, label_list, parent_node_index, current_node_index);
+                    recursionIfWhile(tree, bo, {}, label_list, current_label_index, parent_node_index, current_node_index);
                     return;
                 }
             }
@@ -505,7 +518,7 @@ namespace Bytecode
                         printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
                                "= right", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
 
-                        recursionTree(tree, bo, current_node_index, current_node.children[i]);
+                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[i]);
                         printf("Translator RecursionTree %15s : %5d | Return \n", "= right", current_node_index);
                     }
                     printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
@@ -521,7 +534,7 @@ namespace Bytecode
             {
                 printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
                        "main", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
-                recursionTree(tree, bo, current_node_index, current_node.children[i]);
+                recursionTree(tree, bo, jump_map, current_node_index, current_node.children[i]);
                 printf("Translator RecursionTree %15s : %5d | Return \n", "main", current_node_index);
             }
 
@@ -553,6 +566,24 @@ namespace Bytecode
                     bo->putOpecode(Opecode::s_load, lv.type, lv.index);
                 }
 
+                if (current_node.token == "break" && jump_map.find("break") != jump_map.end())
+                {
+                    bo->putOpecode(Opecode::s_jump, jump_map["break"]);
+                }
+                else if (current_node.token == "break")
+                {
+                    printf("error : break is not available at this location\n");
+                }
+
+                if (current_node.token == "continue" && jump_map.find("continue") != jump_map.end())
+                {
+                    bo->putOpecode(Opecode::s_jump, jump_map["continue"]);
+                }
+                else if (current_node.token == "continue")
+                {
+                    printf("error : continue is not available at this location\n");
+                }
+
                 if (current_node.token == "+")
                 {
                     bo->putOpecode(Opecode::c_add);
@@ -575,7 +606,8 @@ namespace Bytecode
         void translator(vSyntacticTree &tree, string file_name, vstring token_class_type)
         {
             BytecodeOutput *bo = new BytecodeOutput(file_name, token_class_type);
-            recursionTree(tree, bo, -1, 0);
+            JumpMap jump_map = {};
+            recursionTree(tree, bo, jump_map, -1, 0);
             bo->processedStackTop();
             delete bo;
             return;
