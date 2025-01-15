@@ -167,6 +167,39 @@ namespace Bytecode
             }
         }
 
+        struct MethodChainLiner
+        {
+            // 0 : value
+            // 1 : method
+            int type;
+            int node_index;
+        };
+
+        // expression以下のメソッドチェーンを解析する
+        void recursionExpressionToLinear(vSyntacticTree &tree, BytecodeOutput *bo, vector<MethodChainLiner> &mcl, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.parent_token == "<value_name>")
+            {
+                mcl.emplace_back(MethodChainLiner{0, current_node_index});
+                return;
+            }
+            else if (current_node.token_label == is_id_NonterminalSymbol && current_node.token == "<function_message_passing>")
+            {
+                mcl.emplace_back(MethodChainLiner{1, current_node_index});
+                return;
+            }
+
+            for (int i = 0; i < current_node.children.size(); i++)
+            {
+                printf("Translator RecursionTree %15s : %5d | %5d | %20s | %20s -> %5d | %20s\n",
+                       "expression", current_node_index, current_node.token_label, current_node.token.c_str(), current_node.parent_token.c_str(), current_node.children[i], tree[current_node.children[i]].token.c_str());
+                recursionExpressionToLinear(tree, bo, mcl, current_node_index, current_node.children[i]);
+                printf("Translator RecursionTree %15s : %5d | Return \n", "expression", current_node_index);
+            }
+        }
+
         void recursionLogicalOperators(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index, int destination_label)
         {
             SyntacticTreeNode current_node = getNode(tree, current_node_index);
@@ -507,7 +540,32 @@ namespace Bytecode
                     recursionIfWhile(tree, bo, {}, label_list, current_label_index, parent_node_index, current_node_index);
                     return;
                 }
+                else if (current_node.token == "<expression>")
+                {
+                    vector<MethodChainLiner> mcl = {};
+                    recursionExpressionToLinear(tree, bo, mcl, parent_node_index, current_node_index);
+
+                    for (int i = 0; i < mcl.size(); i++)
+                    {
+                        MethodChainLiner m = mcl[i];
+                        printf("mcl %d %d\n", m.type, m.node_index);
+
+                        if (i == 0) // これは対象オブジェクト
+                        {
+                        }
+
+                        else if (i == 1) // 容易に解析できる限界
+                        {
+                        }
+
+                        else
+                        {
+                        }
+                    }
+                    return;
+                }
             }
+
             if (current_node.token_label == is_id_TerminalSymbol)
             {
                 if (current_node.token == "=")

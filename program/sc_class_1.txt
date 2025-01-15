@@ -1,7 +1,12 @@
-int i = 0;
+class Hoge {
+    int a = 3;
+    int b = 4;
+    int c = 5;
 
-while ( i < 100){
+    function a = () => {
 
-        break;
-
+    };
 };
+
+
+Hoge a = new Hoge();

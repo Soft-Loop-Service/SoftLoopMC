@@ -145,9 +145,10 @@ namespace Bytecode
 
         BytecodeOutput::~BytecodeOutput()
         {
+            printf("\n");
             for (int i = 0; i < local_stack.size(); i++)
             {
-                printf(" %3d : p:%3d t:%3d | c:", i, local_stack[i].getParent(), local_stack[i].getLocalStackType());
+                printf(" %3d : p:%3d t:%3d d:%3d | c:", i, local_stack[i].getParent(), local_stack[i].getLocalStackType(), local_stack[i].getDirectlyIndex());
 
                 for (int j = 0; j < local_stack[i].getChidren().size(); j++)
                 {
@@ -330,6 +331,7 @@ namespace Bytecode
             bytecode = new std::ostringstream();
             local_stack_type = local_stack_type_object;
             parent = -1;
+            directly_index = -1;
         }
         LocalStack::LocalStack(int s_type, int p, int di)
         {

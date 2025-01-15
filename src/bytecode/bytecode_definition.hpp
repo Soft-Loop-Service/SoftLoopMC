@@ -74,9 +74,29 @@ namespace Bytecode
 
         const opcr pop = 15; // スタックから削除。ただしどこにも記録しない。
 
-        const opcr s_invokevirtual = 20;             // 関数呼び出し
-        const opcr s_invokevirtual_constructor = 21; // コンストラクタ呼び出し
-        const opcr s_instance = 22;                  // インスタンス化したものをスタックに積む
+        // 関数呼び出し
+        // この命令より前に、スタックに引数→対象関数を積んでおく
+        const opcr s_invokevirtual = 20;
+
+        // コンストラクタ呼び出し
+        // 第2引数はクラスのインデックス
+        const opcr s_invokevirtual_constructor = 21;
+
+        // インスタンス化したものをスタックに積む（インスタンス化のみ）
+        // 第2引数はクラスのインデックス
+        const opcr s_instance = 22;
+
+        // 候補を積んで置き、名前解決を依頼する命令
+        // この直前には、オブジェクトをスタックに積んでおく。
+        // このあとにs_invokevirtualを使用すれば、名前解決された関数を呼び出すことができる
+        // s_name_resolve_push 10 20 30 であれば、push 10 / push 20 / push 30のいずれかがされることとなる
+        const opcr s_name_resolve_push = 23;
+
+        // 候補を積んで置き、名前解決を依頼する命令
+        // この直前には、オブジェクトをスタックに積んでおく。
+        // このあとにs_invokevirtualを使用すれば、名前解決されたローカル変数をスタックに積むことができる
+        // s_name_resolve_load 10 20 30 s_load 10 / s_load 20 / s_load 30のいずれかがされることとなる
+        const opcr s_name_resolve_load = 24;
 
         // ローカル変数関連
 
