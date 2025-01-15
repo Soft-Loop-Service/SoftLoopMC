@@ -111,14 +111,15 @@ namespace Bytecode
         const opcr c_division = 103;
 
         // 比較
-        // 第二引数はtrue label ID 第三引数はfalse label ID 第三引数はなくてもかまわない
+        // 第二引数はfalse label ID
         const opcr s_if_acmpeq = 111; //== (オブジェクト参照)
         const opcr s_if_acmpne = 112; //!= (オブジェクト参照)
         const opcr s_if_icmpeq = 113; // ==
-        const opcr s_if_icmpge = 114; // >=
-        const opcr s_if_icmpgt = 115; // >
-        const opcr s_if_icmple = 116; // <=
-        const opcr s_if_icmplt = 117; // <
+        const opcr s_if_icmpne = 114; // !=
+        const opcr s_if_icmpge = 115; // >=
+        const opcr s_if_icmpgt = 116; // >
+        const opcr s_if_icmple = 117; // <=
+        const opcr s_if_icmplt = 118; // <
 
         const opcr head_start_function = 240;
         const opcr head_end_function = 241;
