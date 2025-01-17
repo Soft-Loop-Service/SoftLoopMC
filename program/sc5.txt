@@ -1,0 +1,24 @@
+state StateA {
+    int value = 0;
+    function setValue = () => {};
+};
+
+component Main {
+    StateA sa = new StateA();
+        
+    function fibonacci = (int num) => {
+        if (num <= 1) {
+            return num;
+        };
+
+        return fibonacci(num - 2) + fibonacci(num - 1);
+    };
+    
+    function click = () => {
+        sa.setValue(fibonacci(100));
+    };
+
+    return (<div style= {{x : 10 , y : 20 , width : 100 , height : 100};} > {sa.value;} </div> );
+};
+
+Main main = new Main();

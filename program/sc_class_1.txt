@@ -1,14 +1,8 @@
-class Fuga{
-    int inside = 3;
-};
 
 class Hoge {
-    Fuga a = new Fuga();
+    int i = 3;
     function k = () => {};
 };
 
-Hoge p = new Hoge();
-
-p.k();
-p.a.inside;
+Hoge a = new Hoge();
 

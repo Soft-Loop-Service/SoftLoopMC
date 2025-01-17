@@ -1,2 +1,4 @@
-
-component Page Main{}
+int a = 2222;
+int b = 1500;
+int c = 1234;
+c = c - a;

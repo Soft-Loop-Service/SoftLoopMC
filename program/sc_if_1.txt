@@ -1,9 +1,0 @@
-int a = (int num) => {
-    if (num <= 1) {
-        return num;
-    };
-
-    return a(num - 2) + a(num - 1);
-};
-
-a(100);

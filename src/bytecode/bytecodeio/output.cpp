@@ -13,6 +13,7 @@ namespace Bytecode
         BytecodeOutput::BytecodeOutput(string file_name, vstring tct)
         {
             outputfile = new ofstream(file_name);
+            *outputfile << Opecode::program_start << "\n";
             local_stack = {};
             local_stack.emplace_back();
             current_local_stack_index = 0;
@@ -166,7 +167,7 @@ namespace Bytecode
 
                 printf("\n");
             }
-
+            *outputfile << Opecode::program_end << "\n";
             outputfile->close();
         }
         void BytecodeOutput::switchClass(int directly_index)
@@ -238,13 +239,25 @@ namespace Bytecode
         void BytecodeOutput::processedStackTop()
         {
             printf("processedStackTop c:%10d p:%10d\n", getCurrentLocalStackIndex(), local_stack[getCurrentLocalStackIndex()].getParent());
+            int parent = local_stack[getCurrentLocalStackIndex()].getParent();
+
+            if (parent < 0)
+            {
+                *outputfile << getHex(Opecode::head_start_global_scope);
+                *outputfile << "\n";
+            }
 
             *outputfile << "\n";
             *outputfile << local_stack[getCurrentLocalStackIndex()].bytecode->str();
             *outputfile << "\n";
-            local_stack[getCurrentLocalStackIndex()].bytecode->clear();
 
-            int parent = local_stack[getCurrentLocalStackIndex()].getParent();
+            if (parent < 0)
+            {
+                *outputfile << getHex(Opecode::head_end_global_scope);
+                *outputfile << "\n";
+            }
+
+            local_stack[getCurrentLocalStackIndex()].bytecode->clear();
 
             if (parent >= 0)
             {
@@ -264,7 +277,8 @@ namespace Bytecode
                     *outputfile << ls.getLocalStackType();
                     *outputfile << " ";
                     *outputfile << ls.getDirectlyIndex();
-
+                    *outputfile << " ";
+                    *outputfile << ls.getParent();
                     std::map<std::string, LocalVariable> ls_v_map = ls.getLocalVariableMap();
 
                     for (const auto &pair : ls_v_map)

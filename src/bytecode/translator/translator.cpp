@@ -353,7 +353,7 @@ namespace Bytecode
                 }
                 else if (left.token == "while")
                 {
-                    JumpMap jump_map_cp;
+                    JumpMap jump_map_cp = {};
                     jump_map_cp.insert(jump_map.begin(), jump_map.end());
 
                     jump_map_cp["continue"] = label_list[0];
@@ -482,7 +482,12 @@ namespace Bytecode
         {
             SyntacticTreeNode current_node = getNode(tree, current_node_index);
 
-            printf("* * * recursionTree %d \n", current_node_index);
+            printf("* * * recursionTree %d %d \n", current_node_index, jump_map.size());
+
+            for (int i = 0; i < jump_map.size(); i++)
+            {
+                printf("jump_map %s : %d\n", jump_map.begin()->first.c_str(), jump_map.begin()->second);
+            }
 
             if (current_node.token_label == is_id_NonterminalSymbol)
             {
@@ -496,17 +501,24 @@ namespace Bytecode
 
                     bo->switchFunction(directly_index);
 
+                    int function_latest_line = bo->getOpecodeLabelUniqueId();
+                    JumpMap jump_map_cp = {};
+                    jump_map_cp.insert(jump_map.begin(), jump_map.end());
+                    jump_map_cp["return"] = function_latest_line;
+
                     // 引数がある場合 index 1は => 2は記号
                     if (current_node.children.size() == 3)
                     {
                         recursionArgument(tree, bo, current_node_index, current_node.children[0]);
-                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[2]);
+                        recursionTree(tree, bo, jump_map_cp, current_node_index, current_node.children[2]);
                     }
                     // 引数がない場合
                     if (current_node.children.size() == 2)
                     {
-                        recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
+                        recursionTree(tree, bo, jump_map_cp, current_node_index, current_node.children[1]);
                     }
+
+                    bo->putOpecode(Opecode::s_label_point, function_latest_line);
 
                     bo->returnFunction();
                     printf("Translator RecursionTree %15s : %5d | Return \n", "function", current_node_index);
@@ -526,7 +538,16 @@ namespace Bytecode
                     if (current_node.children.size() == 1)
                     {
                     }
+
                     printf("Translator RecursionTree %15s : %5d | Return \n", "return", current_node_index);
+
+                    if (jump_map.find("return") == jump_map.end())
+                    {
+                        printf("error : return label is underfind\n");
+                        return;
+                    }
+
+                    bo->putOpecode(Opecode::s_jump, jump_map["return"]);
 
                     return;
                 }
@@ -554,7 +575,7 @@ namespace Bytecode
 
                     int directly_index = -1;
 
-                    if (definition_type == "class" || definition_type == "component")
+                    if (definition_type == "class" || definition_type == "component" || definition_type == "state")
                     {
                         opcr type = Opecode::resolvOpecrType(definition_name, bo->token_class_type);
                         directly_index = bo->newLocalVariable(definition_name, type);
@@ -626,7 +647,7 @@ namespace Bytecode
 
                     int current_label_index = 0;
                     // std::reverse(label_list.begin(), label_list.end());
-                    recursionIfWhile(tree, bo, {}, label_list, current_label_index, parent_node_index, current_node_index);
+                    recursionIfWhile(tree, bo, jump_map, label_list, current_label_index, parent_node_index, current_node_index);
                     return;
                 }
                 else if (current_node.token == "<expression>")
