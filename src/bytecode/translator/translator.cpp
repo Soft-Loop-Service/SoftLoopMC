@@ -463,7 +463,15 @@ namespace Bytecode
                 recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
             }
 
-            LocalVariable lv = bo->findLocalVariable(getChildrenNode(tree, current_node_index, 0).token, Opecode::d_function);
+            string function_name = getChildrenNode(tree, current_node_index, 0).token;
+            if (Opecode::special_action_map.find(function_name) != Opecode::special_action_map.end())
+            {
+                bo->putOpecode(Opecode::s_special_invokevirtual, Opecode::special_action_map.at(function_name));
+                printf("Translator RecursionTree %15s : %5d | Return \n", "function_message_passing", current_node_index);
+                return;
+            }
+
+            LocalVariable lv = bo->findLocalVariable(function_name, Opecode::d_function);
             if (lv.name == "underfind")
             {
                 printf("error : function %s is underfind\n", getChildrenNode(tree, current_node_index, 0).token.c_str());

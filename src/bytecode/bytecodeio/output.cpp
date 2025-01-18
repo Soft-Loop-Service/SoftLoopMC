@@ -21,6 +21,8 @@ namespace Bytecode
         }
         string BytecodeOutput::getHex(opcr opecode)
         {
+            return std::to_string(opecode);
+
             std::ostringstream oss;
             oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(opecode);
             return oss.str();

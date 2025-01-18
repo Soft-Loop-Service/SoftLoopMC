@@ -6,4 +6,6 @@ function fibonacci = (int num) => {
     return fibonacci(num - 2) + fibonacci(num - 1);
 };
 
-int a = fibonacci(100);
+int a = fibonacci(6);
+
+print(a);

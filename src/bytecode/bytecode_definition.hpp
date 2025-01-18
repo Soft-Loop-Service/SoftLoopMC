@@ -31,6 +31,18 @@ namespace Bytecode
             {"class", d_class},
             {"boolean", d_boolean}};
 
+        inline const std::map<std::string, int> special_action_map = {
+            {"print", 1},
+            // {"printf", 2},
+            // {"println", 3},
+        };
+
+        inline const std::map<std::string, int> special_passive_map = {
+            // {"print", 1},
+            // {"printf", 2},
+            // {"println", 3},
+        };
+
         inline opcr resolvOpecrType(std::string type, vstring token_class_type)
         {
             std::map<std::string, opcr> cp_type_map = type_map;
@@ -69,9 +81,9 @@ namespace Bytecode
             return type_map.at(type);
         }
 
-        const opcr bool_false = 0;
-        const opcr bool_true = 1;
-        const opcr value_null = 2;
+        const opcr value_null = 0;
+        const opcr bool_true = 5;
+        const opcr bool_false = 6;
 
         // stack関連
         const opcr push = 10; // スタックに数値もしくは文字列を積む 第1引数は型 第2引数は値
@@ -95,6 +107,11 @@ namespace Bytecode
         // スタックトップにあるスコープをPOPし、その中にある変数を探す。存在する場合はスタックに積む
         // 第二引数以降は 候補となる   TYPE NAME の繰り替えし
         const opcr s_inside = 23;
+
+        // 組み込み関数呼び出し
+        // 第1引数は特殊関数のID
+        // 引数の数はVM側で決める
+        const opcr s_special_invokevirtual = 24;
 
         // ローカル変数関連
 
