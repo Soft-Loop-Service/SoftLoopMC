@@ -50,7 +50,9 @@ const vector<string> VALUE_TYPE = {
     "Object",
     "function",
 };
-const vector<string> DEFINITION_TYPE = {"var", "const", "class", "interface", "enum", "component", "state"};
+// const vector<string> DEFINITION_TYPE = {"var", "const", "class", "interface", "enum", "component", "state"};
+const vector<string> DEFINITION_TYPE = {"class"};
+
 const vector<string> ACCESS_TYPE = {"public", "private", "protected"};
 
 #endif

@@ -486,6 +486,113 @@ namespace Bytecode
         // {
         //     recursionTree(tree, bo, {}, parent_node_index, current_node_index);
         // }
+
+        void recursionTreeJson(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.token_label == is_id_TerminalSymbol && current_node.parent_token == "<key>")
+            {
+                bo->putOpecode(Opecode::push, Opecode::d_str, current_node.token);
+                return;
+            }
+
+            if (current_node.token_label == is_id_TerminalSymbol && current_node.token == ":")
+            {
+                for (int i = 1; i < current_node.children.size(); i++)
+                {
+                    recursionTree(tree, bo, {}, current_node_index, current_node.children[i]);
+                }
+
+                recursionTreeJson(tree, bo, current_node_index, current_node.children[0]);
+                bo->putOpecode(Opecode::j_construction);
+                return;
+            }
+
+            if (current_node.token_label == is_id_NonterminalSymbol && current_node.token == "<json_line>")
+            {
+                for (int i = 0; i < current_node.children.size(); i++)
+                {
+                    recursionTreeJson(tree, bo, current_node_index, current_node.children[i]);
+                }
+
+                bo->putOpecode(Opecode::j_series);
+                return;
+            }
+        }
+
+        void recursionTreeHTMLAttribute(vSyntacticTree &tree, BytecodeOutput *bo, int &attribute_count, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.token_label == is_id_TerminalSymbol && current_node.token == "=")
+            {
+                for (int i = 1; i < current_node.children.size(); i++)
+                {
+                    recursionTreeHTMLAttribute(tree, bo, attribute_count, current_node_index, current_node.children[i]);
+                }
+
+                bo->putOpecode(Opecode::push, Opecode::d_str, getChildrenNode(tree, current_node_index, 0).token);
+                attribute_count++;
+
+                return;
+            }
+
+            if (current_node.token_label == is_id_NonterminalSymbol && current_node.token == "<json_line>" ||
+                current_node.token_label == is_id_TerminalSymbol && current_node.token == ":")
+            {
+                recursionTreeJson(tree, bo, parent_node_index, current_node_index);
+                return;
+            }
+
+            for (int i = 0; i < current_node.children.size(); i++)
+            {
+                recursionTreeHTMLAttribute(tree, bo, attribute_count, current_node_index, current_node.children[i]);
+            }
+        }
+
+        void recursionTreeHtmlStart(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            if (current_node.token_label == is_id_NonterminalSymbol && current_node.token == "<HTML_tag_start>")
+            {
+                SyntacticTreeNode center_node = getChildrenNode(tree, current_node_index, 1);
+                int attribute_count = 0;
+
+                //    93 |    28 |     <HTML_tag_start> |             110 |               <HTML> |      86 | {  96   95   94 }
+                if (current_node.children.size() == 3)
+                {
+                }
+
+                //   108 |    42 |     <HTML_tag_start> |             110 |               <HTML> |      42 | { 267  266  263  109 }
+                if (current_node.children.size() == 4)
+                {
+
+                    recursionTreeHTMLAttribute(tree, bo, attribute_count, current_node_index, getChildrenNodeIndex(tree, current_node_index, 2));
+                }
+
+                bo->putOpecode(Opecode::h_dom_start, {center_node.token, to_string(attribute_count)});
+            }
+        }
+
+        void recursionTreeHtmlEnd(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        {
+            bo->putOpecode(Opecode::h_dom_end);
+        }
+
+        void recursionTreeHtml(vSyntacticTree &tree, BytecodeOutput *bo, int parent_node_index, int current_node_index)
+        {
+            SyntacticTreeNode current_node = getNode(tree, current_node_index);
+
+            int left_node_id = getChildrenNodeIndex(tree, current_node_index, 0);
+            int center_node_id = getChildrenNodeIndex(tree, current_node_index, 1);
+            int right_node_id = getChildrenNodeIndex(tree, current_node_index, 2);
+            recursionTreeHtmlStart(tree, bo, current_node_index, left_node_id);
+            recursionTree(tree, bo, {}, current_node_index, center_node_id);
+            recursionTreeHtmlEnd(tree, bo, current_node_index, right_node_id);
+        }
+
         void recursionTree(vSyntacticTree &tree, BytecodeOutput *bo, JumpMap jump_map, int parent_node_index, int current_node_index)
         {
             SyntacticTreeNode current_node = getNode(tree, current_node_index);
@@ -557,6 +664,27 @@ namespace Bytecode
 
                     bo->putOpecode(Opecode::s_jump, jump_map["return"]);
 
+                    return;
+                }
+                else if (current_node.token == "<HTML>")
+                {
+                    recursionTreeHtml(tree, bo, parent_node_index, current_node_index);
+                    return;
+                }
+                else if (current_node.token == "<HTML_tag_single>")
+                {
+                    int attribute_count = 0;
+                    if (current_node.children.size() == 4)
+                    {
+                        recursionTreeHTMLAttribute(tree, bo, attribute_count, current_node_index, current_node.children[2]);
+                    }
+                    if (current_node.children.size() == 3)
+                    {
+                        // recursionTree(tree, bo, jump_map, current_node_index, current_node.children[1]);
+                    }
+
+                    bo->putOpecode(Opecode::h_dom_start, {getChildrenNode(tree, current_node_index, 1).token, to_string(attribute_count)});
+                    bo->putOpecode(Opecode::h_dom_end, getChildrenNode(tree, current_node_index, 1).token);
                     return;
                 }
                 else if (current_node.token == "<function_message_passing>")

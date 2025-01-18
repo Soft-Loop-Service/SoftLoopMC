@@ -58,9 +58,10 @@ namespace Syntactic
         }
         printf(" pumpOperator : %d\n", current_node_index);
 
-        if (parent_node_index >= 0 && tree[current_node_index].token_label == is_id_NonterminalSymbol && ast_keep_list_operator.find(tree[current_node_index].token) == ast_keep_list_operator.end())
+        if (parent_node_index >= 0 && tree[current_node_index].token_label == is_id_NonterminalSymbol &&
+            ast_keep_list_operator.find(tree[current_node_index].token) == ast_keep_list_operator.end())
         {
-            if (tree[current_node_index].children.size() >= 3)
+            if (tree[current_node_index].children.size() == 3)
             {
                 int flow_node_index = tree[current_node_index].children[1];
                 SyntacticTreeNode token_center = tree[flow_node_index];
@@ -68,6 +69,24 @@ namespace Syntactic
                 {
                     shortParentChildFlow(tree, parent_node_index, current_node_index, flow_node_index);
                     deleteNegativeValueChildren(tree, flow_node_index);
+                }
+            }
+            if (tree[current_node_index].children.size() >= 4)
+            {
+                int flow_node_index = tree[current_node_index].children[1];
+                SyntacticTreeNode token_center = tree[flow_node_index];
+                if (token_center.token_label == is_id_TerminalSymbol && isExpr(token_center.token))
+                {
+                    int left_index = tree[current_node_index].children[0];
+                    int right_index = tree[current_node_index].children[2];
+
+                    tree[current_node_index].children[0] = -1;
+                    tree[current_node_index].children[2] = -1;
+
+                    tree[flow_node_index].children.push_back(left_index);
+                    tree[flow_node_index].children.push_back(right_index);
+
+                    deleteNegativeValueChildren(tree, current_node_index);
                 }
             }
         }

@@ -19,6 +19,7 @@ namespace Bytecode
         const opcr d_function = 700; // 関数
         const opcr d_class = 800;    // クラスやコンポーネントなど、インスタンス化できるもの。
         const opcr d_boolean = 900;
+        const opcr d_json = 1000;
 
         inline const std::map<std::string, opcr> type_map = {
             {"int", d_int},
@@ -146,6 +147,17 @@ namespace Bytecode
         const opcr s_if_true = 120;
         const opcr s_if_false = 121;
 
+        // const opcr h_dom_render = 130;
+        const opcr h_dom_start = 130; // 第1引数HTML TAG 第2引数 attribute_count
+        const opcr h_dom_end = 132;   // 第1引数HTML TAG
+
+        // ほかの関数コンポーネントを呼び出す 基本的にはs_invokevirtualと同じ
+        // この命令より前に、スタックに引数→対象関数を積んでおく
+        // const opcr h_dom_render = 132;
+
+        const opcr j_construction = 140; // json key:value 構築命令 スタックを2つ取得して構築した 組の参照をスタックに積む
+        const opcr j_series = 141;       // json key:value 構築命令 スタックを2つ取得して 直列につなぐ 結果をスタックに積む
+
         // 第1引数は directly_index
         const opcr head_start_function = 240;
         const opcr head_end_function = 241;
@@ -186,6 +198,7 @@ namespace Bytecode
         16. **ifnull**: スタック上のオブジェクト参照がnullの場合に分岐します。
         17. **iinc**: ローカル変数に対して定数値を加算します。この命令は、ループカウンタのインクリメントなどに使用されます。
     */
+
     }
 }
 

@@ -444,11 +444,11 @@ namespace Bytecode
             return directly_index;
         }
 
-        int LocalStack::newLocalVariable(string name, int index, opcr type)
+        int LocalStack::newLocalVariable(string name, int d_index, opcr type)
         {
-            LocalVariable lv = LocalVariable(name, index, type);
+            LocalVariable lv = LocalVariable(name, d_index, type);
             local_variable_map[name] = lv;
-            return index;
+            return d_index;
         }
 
         bool LocalStack::isFindLocalVariable(string name)
