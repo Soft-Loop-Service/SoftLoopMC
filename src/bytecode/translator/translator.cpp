@@ -506,6 +506,7 @@ namespace Bytecode
 
                 recursionTreeJson(tree, bo, current_node_index, current_node.children[0]);
                 bo->putOpecode(Opecode::j_construction);
+
                 return;
             }
 
@@ -885,9 +886,14 @@ namespace Bytecode
                 {
                     bo->putOpecode(Opecode::push, isFloat(current_node.token) ? Opecode::d_float : Opecode::d_int, current_node.token);
                 }
+                if (current_node.parent_token == "<HTML_children>")
+                {
+                    bo->putOpecode(Opecode::push, Opecode::d_str, current_node.token);
+                    bo->putOpecode(Opecode::h_to_html);
+                }
                 if (current_node.parent_token == "<text>")
                 {
-                    bo->putOpecode(Opecode::push, Opecode::d_int, current_node.token);
+                    bo->putOpecode(Opecode::push, Opecode::d_str, current_node.token);
                 }
                 if (current_node.parent_token == "<value_name>" && current_node.token == "true")
                 {

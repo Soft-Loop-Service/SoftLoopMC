@@ -1,0 +1,16 @@
+function fibonacci = (int num) => {
+    if (num <= 1) {
+        return num;
+    };
+
+    return fibonacci(num - 2) + fibonacci(num - 1);
+};
+
+function top = () => {
+    return (<div>
+        <p style={{ fontSize : 3};}> FibonaccCalc </p> 
+        <p style={{ fontSize : 7};}> { fibonacci(5); } </p>
+    </div>);
+};
+
+top();

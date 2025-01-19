@@ -176,7 +176,7 @@ namespace Bytecode
         {
             newLocalStack(local_stack_type_object, directly_index);
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# class ci :" << getCurrentLocalStackIndex() << "| di :" << directly_index << "\n";
-            putOpecode(Opecode::head_start_class, directly_index);
+            putOpecode(Opecode::head_start_class, getCurrentLocalStackIndex());
         }
 
         void BytecodeOutput::returnClass()
@@ -199,7 +199,7 @@ namespace Bytecode
         {
             newLocalStack(local_stack_type_function, directly_index);
             *(local_stack[getCurrentLocalStackIndex()].bytecode) << "# function ci :" << getCurrentLocalStackIndex() << "| di :" << directly_index << "\n";
-            putOpecode(Opecode::head_start_function, directly_index);
+            putOpecode(Opecode::head_start_function, getCurrentLocalStackIndex());
         }
 
         void BytecodeOutput::returnFunction()
