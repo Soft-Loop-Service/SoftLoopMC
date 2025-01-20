@@ -18,7 +18,7 @@ namespace Syntactic
     void climbChild(vSyntacticTree &tree, int current_node_index, int child_flow_index);
     bool cutChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node);
     void moveChild(vSyntacticTree &tree, int current_node_index, int child_flow_index);
-    bool shortParentChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node);
-    bool shortParentChildFlow(vSyntacticTree &tree, int parent_node_index, int delete_current_node, int flow_child_node);
-    bool deleteNegativeValueChildren(vSyntacticTree &tree, int current_node_index);
+    void shortParentChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node);
+    void shortParentChildFlow(vSyntacticTree &tree, int parent_node_index, int delete_current_node, int flow_child_node);
+    void deleteNegativeValueChildren(vSyntacticTree &tree, int current_node_index);
 }

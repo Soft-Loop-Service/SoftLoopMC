@@ -9,7 +9,7 @@ function fibonacci = (int num) => {
 function top = () => {
     return (<div>
         <p style={{ fontSize : 3};}> FibonaccCalc </p> 
-        <p style={{ fontSize : 7};}> { fibonacci(5); } </p>
+        <p style={{ fontSize : 7 , x : 150 , y : 200};}> { fibonacci(3); } </p>
     </div>);
 };
 

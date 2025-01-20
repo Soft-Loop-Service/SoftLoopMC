@@ -17,6 +17,12 @@ define MAKEOBJ
 endef
 
  
+buildparse_m:
+	@echo "$(ANALYSIS_SRC)"
+	rm -f $(wildcard $(BIN_SRC)/*.o)
+	g++ -std=c++2a -w -o analysis.out $(wildcard $(ANALYSIS_SRC)) 
+
+
 buildparse:
 	@echo "$(ANALYSIS_SRC)"
 	rm -f $(wildcard $(BIN_SRC)/*.o)

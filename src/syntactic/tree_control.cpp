@@ -102,7 +102,7 @@ namespace Syntactic
     /// @param parent_node_index
     /// @param delete_child_node
     /// @return
-    bool shortParentChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node)
+    void shortParentChild(vSyntacticTree &tree, int parent_node_index, int delete_child_node)
     {
         // tree[parent_node_index].children = tree[delete_child_node].children;
 
@@ -128,7 +128,7 @@ namespace Syntactic
     /// @param delete_current_node 消したい要素（現在位置）
     /// @param flow_child_node 現在位置に移動する子要素
     /// @return
-    bool shortParentChildFlow(vSyntacticTree &tree, int parent_node_index, int delete_current_node, int flow_child_node)
+    void shortParentChildFlow(vSyntacticTree &tree, int parent_node_index, int delete_current_node, int flow_child_node)
     {
         for (int i = 0; i < tree[parent_node_index].children.size(); i++)
         {
@@ -154,7 +154,7 @@ namespace Syntactic
     /// @param tree
     /// @param current_node_index 検査対象（その子要素群を検査する）
     /// @return
-    bool deleteNegativeValueChildren(vSyntacticTree &tree, int current_node_index)
+    void deleteNegativeValueChildren(vSyntacticTree &tree, int current_node_index)
     {
         int c_index = tree[current_node_index].children.size();
         for (int i = c_index - 1; i >= 0; i--)
