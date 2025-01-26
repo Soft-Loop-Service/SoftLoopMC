@@ -5,7 +5,7 @@
 #include "definition.hpp"
 #include "./lr_table/lr_table.hpp"
 
-inline int inputTable(string table_file, LRTable::LRTableMultilayer &LR_table_multilayer)
+inline void inputTable(string table_file, LRTable::LRTableMultilayer &LR_table_multilayer)
 {
     std::ifstream ifs(table_file);
     printf("inputTable\n");
@@ -17,7 +17,7 @@ inline int inputTable(string table_file, LRTable::LRTableMultilayer &LR_table_mu
     if (ifs.fail())
     {
         std::cout << "Failed to open file." << std::endl;
-        return -1;
+        return ;
     }
     getline(ifs, table_accept_string);
 
