@@ -1,8 +1,8 @@
 # Declarative UI for M5Stack
 
-**企画名** : Declarative UI for M5Stack - HTML/JSX Like な記法でマイコンの UI を製作できる新たな言語を開発する試み -
-**班番号** : RWC24-group26
-**開発者** : 丸山 拓真
+**企画名** : Declarative UI for M5Stack - HTML/JSX Like な記法でマイコンの UI を製作できる新たな言語を開発する試み - </br>
+**班番号** : RWC24-group26 </br>
+**開発者** : 丸山 拓真</br>
 
 ## 1. プロジェクト概要
 
